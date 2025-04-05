@@ -1,12 +1,16 @@
 <p align="center">
-  <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="128" height="128">
+  <img src="static/app_icon_redesigned.svg" alt="LAN File Transfer Tool Logo" width="128" height="128">
 </p>
 
 # LAN File Transfer Tool
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.13-blue)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-2.3.3-red)](https://flask.palletsprojects.com/)
+
 [中文文档](#内网文件传输工具)
 
-A simple and easy-to-use LAN file transfer tool that allows quick file transfers within a local network, supporting multiple file uploads simultaneously.
+A simple and easy-to-use LAN file transfer tool that allows quick file transfers within a local network. This lightweight application enables seamless file sharing between devices on the same network without the need for complex setup or external services.
 
 ## Features
 
