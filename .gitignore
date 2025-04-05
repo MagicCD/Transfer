@@ -1,57 +1,54 @@
-# Python缓存文件
+# Python bytecode and cache
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
 
-# 构建目录
+# Build and packaging files
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 *.spec
 
-# 虚拟环境
+# Virtual environments
 venv/
 env/
+ENV/
 .env/
 .venv/
-ENV/
 
-# 上传的文件目录（可能包含用户数据）
+# Uploaded user files
 uploads/*
 !uploads/.gitkeep
 
-# 系统文件
+# System files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# IDE配置文件
+# IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
+.project
+.pydevproject
+.settings/
 
-# 日志文件
+# Logs and databases
 *.log
-
-# 单元测试/覆盖率报告
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# 本地配置文件
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+*.sqlite
+*.db

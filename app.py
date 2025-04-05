@@ -217,7 +217,13 @@ if __name__ == '__main__':
     import time
     time.sleep(2)
     
-    # 创建WebView窗口
-    server_url = f"http://{get_local_ip()}:5000"
-    window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
-    webview.start(lambda: exit_event.set()) 
+    # 打包环境中运行时使用webview窗口
+    if getattr(sys, 'frozen', False):
+        server_url = f"http://{get_local_ip()}:5000"
+        window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
+        webview.start(lambda: exit_event.set())
+    else:
+        # 开发环境下也使用webview窗口
+        server_url = f"http://{get_local_ip()}:5000"
+        window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
+        webview.start(lambda: exit_event.set()) 
