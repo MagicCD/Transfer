@@ -87,6 +87,18 @@
         .selected-files-list li {
             padding: 4px 0;
             border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .selected-files-list li .remove-file {
+            cursor: pointer;
+            color: #e74c3c;
+            font-size: 16px;
+            padding: 0 5px;
+        }
+        .selected-files-list li .remove-file:hover {
+            color: #c0392b;
         }
         .selected-files-list li:last-child {
             border-bottom: none;
@@ -383,12 +395,10 @@
                     selectedFilesCount.textContent = `已选择 ${files.length} 个文件`;
                     selectedFilesList.innerHTML = '';
                     
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        const li = document.createElement('li');
-                        li.textContent = `${file.name} (${formatFileSize(file.size)})`;
-                        selectedFilesList.appendChild(li);
-                    }
+                    // 创建一个可以被修改的文件列表（FileList对象是只读的）
+                    const fileArray = Array.from(files);
+                    
+                    updateSelectedFilesList(fileArray);
                     
                     uploadBtn.disabled = false;
                 } else {
@@ -396,6 +406,51 @@
                     uploadBtn.disabled = true;
                 }
             }
+            
+            // 更新选中的文件列表UI
+            function updateSelectedFilesList(fileArray) {
+                selectedFilesList.innerHTML = '';
+                selectedFilesCount.textContent = `已选择 ${fileArray.length} 个文件`;
+                
+                for (let i = 0; i < fileArray.length; i++) {
+                    const file = fileArray[i];
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span>${file.name} (${formatFileSize(file.size)})</span>
+                        <span class="remove-file" data-index="${i}"><i class="fas fa-times"></i></span>
+                    `;
+                    selectedFilesList.appendChild(li);
+                }
+                
+                if (fileArray.length === 0) {
+                    selectedFilesContainer.style.display = 'none';
+                    uploadBtn.disabled = true;
+                    // 重置文件输入框，否则无法重新选择相同的文件
+                    fileInput.value = '';
+                }
+            }
+            
+            // 绑定移除文件事件
+            selectedFilesList.addEventListener('click', function(e) {
+                const removeBtn = e.target.closest('.remove-file');
+                if (removeBtn) {
+                    const index = parseInt(removeBtn.getAttribute('data-index'));
+                    
+                    // 创建一个新的文件数组，排除要删除的文件
+                    const currentFiles = Array.from(fileInput.files);
+                    const updatedFiles = currentFiles.filter((_, i) => i !== index);
+                    
+                    // 更新UI
+                    updateSelectedFilesList(updatedFiles);
+                    
+                    // 由于无法直接修改fileInput.files，我们需要创建一个新的DataTransfer对象
+                    const dataTransfer = new DataTransfer();
+                    updatedFiles.forEach(file => dataTransfer.items.add(file));
+                    
+                    // 使用新的DataTransfer对象更新fileInput.files
+                    fileInput.files = dataTransfer.files;
+                }
+            });
             
             // 上传按钮点击事件
             uploadBtn.addEventListener('click', function() {

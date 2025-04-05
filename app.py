@@ -190,7 +190,7 @@ def handle_connect():
 
 @socketio.on('upload_progress')
 def handle_upload_progress(data):
-    socketio.emit('upload_progress_update', data, broadcast=True)
+    socketio.emit('upload_progress_update', data, to=None)
 
 # 运行服务器线程
 def run_server():
