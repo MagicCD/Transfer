@@ -1,0 +1,6 @@
+flask==2.3.3
+flask-socketio==5.3.4
+pywebview==4.3
+simple-websocket==1.0.0
+Werkzeug==2.3.7
+pyinstaller==6.12.0

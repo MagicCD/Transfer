@@ -1,0 +1,31 @@
+# Python缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 构建目录
+build/
+dist/
+*.spec
+
+# 虚拟环境
+venv/
+env/
+.env/
+
+# 上传的文件目录（可能包含用户数据）
+uploads/*
+!uploads/.gitkeep
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE配置文件
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 日志文件
+*.log
