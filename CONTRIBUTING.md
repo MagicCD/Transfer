@@ -14,8 +14,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/YOUR-USERNAME/lan-file-transfer.git
-cd lan-file-transfer
+git clone https://github.com/MagicCD/Transfer.git
+cd Transfer
 
 # 安装依赖
 pip install -r requirements.txt
@@ -71,8 +71,8 @@ Thank you for considering contributing to the LAN File Transfer Tool! Here are s
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR-USERNAME/lan-file-transfer.git
-cd lan-file-transfer
+git clone https://github.com/MagicCD/Transfer.git
+cd Transfer
 
 # Install dependencies
 pip install -r requirements.txt
