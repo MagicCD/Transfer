@@ -4,6 +4,20 @@
   <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="150" height="150">
 </p>
 
+<div align="center">
+  <a href="https://github.com/MagicCD/Transfer"><img src="https://img.shields.io/badge/python-3.8+-brightgreen?style=flat-square" alt="Python Version"></a>
+  <a href="https://github.com/MagicCD/Transfer/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-orange?style=flat-square" alt="License"></a>
+  <a href="https://github.com/MagicCD/Transfer/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen?style=flat-square" alt="Build Status"></a>
+  <a href="https://github.com/MagicCD/Transfer/releases/latest"><img src="https://img.shields.io/badge/release-v1.0.0-blue?style=flat-square" alt="Latest Release"></a>
+  <a href="https://github.com/MagicCD/Transfer/blob/main/README_CN.md"><img src="https://img.shields.io/badge/localized-100%25-brightgreen?style=flat-square" alt="Localization"></a>
+  <br>
+  <a href="https://github.com/MagicCD/Transfer/discussions"><img src="https://img.shields.io/badge/discussions-active-lightgrey?style=flat-square" alt="Discussions"></a>
+  <a href="https://gitter.im/MagicCD/Transfer"><img src="https://img.shields.io/badge/chat-online-blue?style=flat-square" alt="Chat"></a>
+  <a href="https://github.com/MagicCD/Transfer/releases"><img src="https://img.shields.io/badge/downloads-available-blue?style=flat-square&logo=github" alt="Downloads"></a>
+  <a href="https://github.com/MagicCD/Transfer/pulls"><img src="https://img.shields.io/badge/PRs-welcome-blue?style=flat-square&logo=github" alt="GitHub Pull Requests"></a>
+  <a href="https://github.com/sponsors/MagicCD"><img src="https://img.shields.io/badge/$-sponsor-ff69b4?style=flat-square" alt="Sponsor"></a>
+</div>
+
 A simple and easy-to-use LAN file transfer tool that allows quick file transfers within a local network. This lightweight application enables seamless file sharing between devices on the same network without the need for complex setup or external services.
 
 ## Features
