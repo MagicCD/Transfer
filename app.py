@@ -20,7 +20,7 @@ from flask import Flask, render_template, request, send_from_directory, jsonify,
 from flask_socketio import SocketIO
 
 # 创建应用
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1GB
@@ -247,4 +247,4 @@ if __name__ == '__main__':
         create_window()
     else:
         # 开发环境下也使用webview窗口
-        create_window() 
+        create_window()

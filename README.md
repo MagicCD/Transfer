@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="128" height="128">
+</p>
+
 # LAN File Transfer Tool
 
 [中文文档](#内网文件传输工具)

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="128" height="128">
+</p>
+
 # LAN File Transfer Tool
 
 A simple and easy-to-use LAN file transfer tool that allows quick file transfers within a local network, supporting multiple file uploads simultaneously.

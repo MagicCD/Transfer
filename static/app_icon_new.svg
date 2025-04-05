@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- 背景圆形 -->
+  <circle cx="256" cy="256" r="256" fill="#3498db"/>
+  
+  <!-- 左侧电脑/设备 -->
+  <rect x="80" y="180" width="120" height="90" rx="5" fill="#f1f1f1" stroke="#2c3e50" stroke-width="4"/>
+  <rect x="80" y="270" width="120" height="20" fill="#2c3e50"/>
+  <rect x="130" y="290" width="20" height="10" fill="#2c3e50"/>
+  <rect x="110" y="290" width="60" height="5" rx="2" fill="#2c3e50"/>
+  
+  <!-- 右侧电脑/设备 -->
+  <rect x="312" y="180" width="120" height="90" rx="5" fill="#f1f1f1" stroke="#2c3e50" stroke-width="4"/>
+  <rect x="312" y="270" width="120" height="20" fill="#2c3e50"/>
+  <rect x="362" y="290" width="20" height="10" fill="#2c3e50"/>
+  <rect x="342" y="290" width="60" height="5" rx="2" fill="#2c3e50"/>
+  
+  <!-- 传输中的文件 -->
+  <g transform="translate(216, 190)">
+    <rect x="0" y="0" width="80" height="100" fill="white" stroke="#2c3e50" stroke-width="3" rx="5"/>
+    <path d="M0 20 H80" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M10 10 H70" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M10 35 H70" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M10 50 H70" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M10 65 H70" stroke="#2c3e50" stroke-width="2"/>
+    <path d="M10 80 H70" stroke="#2c3e50" stroke-width="2"/>
+  </g>
+  
+  <!-- 连接线和传输箭头 -->
+  <path d="M200 225 H216" stroke="#2c3e50" stroke-width="4"/>
+  <path d="M296 225 H312" stroke="#2c3e50" stroke-width="4"/>
+  
+  <!-- 左向右传输箭头 -->
+  <path d="M240 160 L272 160 L272 145 L295 180 L272 215 L272 200 L240 200 Z" fill="#27ae60"/>
+  
+  <!-- 右向左传输箭头 -->
+  <path d="M272 320 L240 320 L240 305 L217 340 L240 375 L240 360 L272 360 Z" fill="#e74c3c"/>
+  
+  <!-- 无线信号图标 -->
+  <path d="M256 130 C 286 130, 311 140, 330 160" stroke="#f1c40f" stroke-width="6" fill="none"/>
+  <path d="M256 130 C 226 130, 201 140, 182 160" stroke="#f1c40f" stroke-width="6" fill="none"/>
+  <path d="M256 130 C 276 130, 291 135, 300 145" stroke="#f1c40f" stroke-width="6" fill="none"/>
+  <path d="M256 130 C 236 130, 221 135, 212 145" stroke="#f1c40f" stroke-width="6" fill="none"/>
+  <circle cx="256" cy="130" r="8" fill="#f1c40f"/>
+</svg>
