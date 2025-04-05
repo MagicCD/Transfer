@@ -12,6 +12,8 @@ dist/
 venv/
 env/
 .env/
+.venv/
+ENV/
 
 # 上传的文件目录（可能包含用户数据）
 uploads/*
@@ -29,3 +31,27 @@ Thumbs.db
 
 # 日志文件
 *.log
+
+# 单元测试/覆盖率报告
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# 本地配置文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

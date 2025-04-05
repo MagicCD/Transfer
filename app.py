@@ -5,9 +5,11 @@ import sys
 import os
 import socket
 import threading
-import time
 import logging
 import webview
+
+# 导入资源路径辅助函数
+from resource_path import resource_path
 
 # 检查 Python 版本兼容性
 py_version = sys.version_info
@@ -19,10 +21,17 @@ if py_version.major > 3 or (py_version.major == 3 and py_version.minor > 13):
 from flask import Flask, render_template, request, send_from_directory, jsonify, abort
 from flask_socketio import SocketIO
 
-# 创建应用
-app = Flask(__name__, static_url_path='/static', static_folder='static')
+# 创建应用并使用resource_path处理静态文件和模板路径
+templates_dir = resource_path('templates')
+static_dir = resource_path('static') if os.path.exists(resource_path('static')) else None
+
+app = Flask(__name__, 
+            template_folder=templates_dir,
+            static_url_path='/static', 
+            static_folder=static_dir)
+
 app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = resource_path('uploads')
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1GB
 
 # 初始化 Socket.IO - 指定async_mode为threading，避免使用eventlet或gevent
@@ -100,16 +109,18 @@ def format_file_size(size_bytes):
 # 获取所有文件信息
 def get_files_info():
     files = []
-    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.isfile(file_path):
-            size = os.path.getsize(file_path)
-            files.append({
-                'name': filename,
-                'size': size,
-                'size_formatted': format_file_size(size),
-                'icon': get_file_icon(filename)
-            })
+    upload_dir = app.config['UPLOAD_FOLDER']
+    if os.path.exists(upload_dir):
+        for filename in os.listdir(upload_dir):
+            file_path = os.path.join(upload_dir, filename)
+            if os.path.isfile(file_path):
+                size = os.path.getsize(file_path)
+                files.append({
+                    'name': filename,
+                    'size': size,
+                    'size_formatted': format_file_size(size),
+                    'icon': get_file_icon(filename)
+                })
     return sorted(files, key=lambda x: x['name'])
 
 # 路由处理
@@ -192,59 +203,21 @@ def handle_connect():
 def handle_upload_progress(data):
     socketio.emit('upload_progress_update', data, to=None)
 
-# 运行服务器线程
-def run_server():
-    global server_running
-    server_running = True
-    
-    # 设置日志级别
+# 只有在直接运行此文件时执行以下代码
+# 当从main.py导入时，不会执行这些代码
+if __name__ == '__main__':
+    # 配置日志级别
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
     
-    # 启动服务器
-    print(f"\n内网文件传输工具已启动!")
-    print(f"请访问: http://{get_local_ip()}:5000")
-    
-    try:
-        # 使用socketio.run，不调用app.run
-        socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
-    except Exception as e:
-        print(f"服务器异常: {e}")
-    finally:
-        server_running = False
-
-# 安全停止服务器
-def stop_server():
-    global server_running, server_thread
-    
-    if server_running:
-        print('\n正在停止服务器...')
-        server_running = False
-        # 设置退出事件
-        exit_event.set()
-
-# 关闭应用时的处理函数
-def on_closing():
-    stop_server()
-
-# 创建webview窗口
-def create_window():
-    global window
-    server_url = f"http://{get_local_ip()}:5000"
-    window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
-    webview.start(on_closing)
-
-# 主函数
-if __name__ == '__main__':
     # 启动服务器线程
-    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread = threading.Thread(target=lambda: socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True), daemon=True)
     server_thread.start()
     
     # 等待服务器启动
+    import time
     time.sleep(2)
     
-    # 打包环境中运行时使用webview窗口
-    if getattr(sys, 'frozen', False):
-        create_window()
-    else:
-        # 开发环境下也使用webview窗口
-        create_window()
+    # 创建WebView窗口
+    server_url = f"http://{get_local_ip()}:5000"
+    window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
+    webview.start(lambda: exit_event.set()) 
