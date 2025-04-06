@@ -35,33 +35,81 @@
         }
         .upload-section {
             margin-bottom: 30px;
-            padding: 20px;
+            padding: 25px;
             border: 2px dashed #ddd;
             border-radius: 8px;
             text-align: center;
+            background-color: #fafafa;
         }
         .upload-section:hover {
             border-color: #3498db;
         }
+        .upload-icon {
+            font-size: 48px;
+            color: #3498db;
+            margin-bottom: 25px;
+        }
+        .upload-info {
+            margin-top: 15px;
+            color: #666;
+        }
+        .file-size-limit {
+            color: #2980b9;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .large-file-info {
+            color: #777;
+            font-size: 13px;
+            margin: 5px 0 15px 0;
+        }
         .file-input {
             display: none;
         }
-        .file-label {
+        .file-label, .upload-btn {
             display: inline-block;
-            padding: 10px 25px;
-            background-color: #3498db;
+            padding: 12px 20px;
             color: white;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 14px;
-            min-width: 120px;
-            height: 40px;
-            line-height: 20px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            min-width: 140px;
+            height: 46px;
+            line-height: 22px;
             box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+        
+        .file-label {
+            background-color: #3498db;
+        }
+        
         .file-label:hover {
             background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .upload-btn {
+            background-color: #2ecc71;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .upload-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.8;
+            box-shadow: none;
+            transform: none;
         }
         .selected-file {
             margin-top: 10px;
@@ -91,36 +139,54 @@
             justify-content: space-between;
             align-items: center;
         }
-        .selected-files-list li .remove-file {
+        .selected-files-list li .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .selected-files-list li .remove-file,
+        .selected-files-list li .pause-resume-file {
             cursor: pointer;
-            color: #e74c3c;
             font-size: 16px;
             padding: 0 5px;
+        }
+        .selected-files-list li .remove-file {
+            color: #e74c3c;
         }
         .selected-files-list li .remove-file:hover {
             color: #c0392b;
         }
+        .selected-files-list li .pause-resume-file {
+            color: #3498db;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .selected-files-list li .pause-resume-file i {
+            pointer-events: none; /* 防止图标捕获点击事件 */
+        }
+        .selected-files-list li .pause-resume-file:hover {
+            color: #2980b9;
+        }
         .selected-files-list li:last-child {
             border-bottom: none;
         }
-        .upload-btn {
-            margin-top: 15px;
-            padding: 10px 25px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 14px;
-            min-width: 120px;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+            align-items: center;
         }
-        .upload-btn:hover {
-            background-color: #27ae60;
-        }
-        .upload-btn:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
+        .button-container .upload-btn {
+            min-width: 140px;
+            padding: 12px 20px;
+            height: 46px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: normal;
+            margin-top: 0;
         }
         .files-section {
             margin-top: 30px;
@@ -145,12 +211,13 @@
             word-break: break-all;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            padding: 5px 0;
         }
         .file-icon {
-            font-size: 1.5em;
+            font-size: 1.6em;
             color: #666;
-            width: 24px;
+            width: 28px;
             text-align: center;
         }
         .file-info > div {
@@ -158,18 +225,26 @@
         }
         .file-actions {
             display: flex;
-            gap: 5px;
+            gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
         }
         .action-btn {
-            padding: 6px 12px;
+            padding: 8px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.25s ease;
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
+            min-width: 100px;
+            height: 36px;
+            line-height: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            flex: 0 0 auto;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .download-btn {
             background-color: #3498db;
@@ -177,14 +252,17 @@
         }
         .download-btn:hover {
             background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
         .delete-btn {
             background-color: #e74c3c;
             color: white;
-            margin-left: 5px;
         }
         .delete-btn:hover {
             background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
         .no-files {
             text-align: center;
@@ -202,22 +280,75 @@
             .server-info {
                 font-size: 14px;
             }
+            .upload-section {
+                padding: 20px 15px;
+            }
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            .file-label, .upload-btn, .cancel-upload-btn {
+                font-size: 15px;
+                height: 42px;
+                line-height: 20px;
+                width: 100%;
+                max-width: 280px;
+                margin: 0;
+            }
+            .button-container .upload-btn, .button-container .cancel-upload-btn {
+                width: 100%;
+                max-width: 280px;
+                font-size: 15px;
+                height: 42px;
+                line-height: 20px;
+                margin-top: 0;
+            }
             .file-info {
                 min-width: 100%;
             }
             .file-actions {
                 width: 100%;
-                justify-content: flex-end;
+                justify-content: space-between;
+                margin-top: 8px;
             }
             .action-btn {
-                padding: 8px 15px;
+                padding: 8px 12px;
+                margin-bottom: 5px;
+                flex: 1;
+                margin: 0 4px 5px;
+                min-width: 0;
+                font-size: 13px;
+            }
+            .file-label, .upload-btn, .cancel-upload-btn, .clear-all-btn {
+                width: 100%;
+            }
+            .button-container, .button-container-header {
+                width: 100%;
+            }
+            .button-container .upload-btn, .button-container-header .clear-all-btn, .button-container .cancel-upload-btn {
+                width: 100%;
+                min-width: 100%;
+                max-width: 280px;
+                margin: 10px auto;
+            }
+            .clear-all-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+                height: 34px;
             }
         }
         .progress-container {
-            margin-top: 15px;
+            margin-top: 20px;
             display: none;
             width: 100%;
         }
+        
+        .progress-button-container {
+            margin-top: 10px;
+        }
+        
         .progress-bar {
             width: 100%;
             height: 20px;
@@ -238,6 +369,29 @@
             display: flex;
             justify-content: space-between;
         }
+        .cancel-upload-btn {
+            background-color: #e74c3c;
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            min-width: 140px;
+            height: 46px;
+            line-height: 22px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .cancel-upload-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
         .controls-section {
             margin-top: 30px;
             display: flex;
@@ -248,12 +402,27 @@
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 10px 20px;
+            padding: 8px 15px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            height: 36px;
+            line-height: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .clear-all-btn:hover {
             background-color: #d35400;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+        .clear-all-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            opacity: 0.8;
+            box-shadow: none;
+            transform: none;
         }
         .toast {
             position: fixed;
@@ -287,11 +456,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
         }
         
         .section-header h2 {
             margin: 0;
+        }
+        
+        .button-container-header {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .button-container-header .clear-all-btn {
+            min-width: 150px;
         }
     </style>
 </head>
@@ -304,16 +484,25 @@
         </div>
         
         <div id="uploadSection" class="upload-section">
-            <h2>上传文件</h2>
+            <div class="upload-icon">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            <div class="upload-info">
+                <p>支持上传多个文件，选择后点击上传</p>
+                <p class="file-size-limit">支持文件大小：最大 5GB</p>
+                <p class="large-file-info">大文件（>50MB）将自动使用分块上传技术，确保传输稳定可靠</p>
+            </div>
+            <div class="button-container">
+                <label for="fileInput" class="file-label" style="vertical-align: middle;"><i class="fas fa-folder-open"></i>&nbsp; 选择文件</label>
+                <button id="uploadBtn" class="upload-btn" disabled style="vertical-align: middle;"><i class="fas fa-upload"></i>&nbsp; 上传文件</button>
+            </div>
             <input type="file" id="fileInput" class="file-input" multiple>
-            <label for="fileInput" class="file-label"><i class="fas fa-folder-open"></i> 选择文件</label>
             <div id="selectedFilesContainer" style="display: none;">
                 <div id="selectedFilesCount" class="selected-file">已选择 0 个文件</div>
                 <div id="selectedFilesList" class="selected-files-list">
                     <ul></ul>
                 </div>
             </div>
-            <button id="uploadBtn" class="upload-btn" disabled><i class="fas fa-upload"></i> 上传文件</button>
             
             <div id="progressContainer" class="progress-container">
                 <div class="progress-bar">
@@ -329,9 +518,11 @@
         <div class="files-section">
             <div class="section-header">
                 <h2>已分享文件</h2>
-                <button id="clearAllBtn" class="clear-all-btn" {% if not files %}disabled{% endif %}>
-                    <i class="fas fa-trash-alt"></i> 清空所有文件
-                </button>
+                <div class="button-container-header">
+                    <button id="clearAllBtn" class="clear-all-btn" {% if not files %}disabled{% endif %}>
+                        <i class="fas fa-trash-alt"></i>&nbsp; 清空所有文件
+                    </button>
+                </div>
             </div>
             <ul id="fileList" class="file-list">
                 {% if files %}
@@ -346,10 +537,10 @@
                         </div>
                         <div class="file-actions">
                             <a href="/download/{{ file.name }}" class="action-btn download-btn">
-                                <i class="fas fa-download"></i> 下载
+                                <i class="fas fa-download"></i>&nbsp; 下载
                             </a>
                             <button class="action-btn delete-btn" data-filename="{{ file.name }}">
-                                <i class="fas fa-trash"></i> 删除
+                                <i class="fas fa-trash"></i>&nbsp; 删除
                             </button>
                         </div>
                     </li>
@@ -365,7 +556,6 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 连接 Socket.IO
             const socket = io();
             
             // DOM 元素
@@ -382,6 +572,23 @@
             const clearAllBtn = document.getElementById('clearAllBtn');
             const uploadSection = document.getElementById('uploadSection');
             const toast = document.getElementById('toast');
+            
+            // 保存当前活动的XHR请求，用于取消上传
+            let activeXHR = null;
+            let isCancelled = false;
+            let isPaused = false;
+            let isUploading = false;
+            let currentFileIndex = 0;  // 添加为全局变量
+            let currentPauseResumeBtn = null; // 当前文件的暂停/恢复按钮
+            
+            // 用于保存暂停状态的信息
+            let pauseInfo = {
+                file: null,
+                fileIndex: 0,
+                chunkIndex: 0,
+                uploadedSize: 0,
+                chunkUploadedSize: 0
+            };
             
             // 选择文件事件
             fileInput.addEventListener('change', function() {
@@ -417,7 +624,14 @@
                     const li = document.createElement('li');
                     li.innerHTML = `
                         <span>${file.name} (${formatFileSize(file.size)})</span>
-                        <span class="remove-file" data-index="${i}"><i class="fas fa-times"></i></span>
+                        <div class="file-actions">
+                            <span class="pause-resume-file" data-index="${i}" data-status="pause">
+                                <i class="fas fa-pause"></i>
+                            </span>
+                            <span class="remove-file" data-index="${i}">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </div>
                     `;
                     selectedFilesList.appendChild(li);
                 }
@@ -430,8 +644,31 @@
                 }
             }
             
-            // 绑定移除文件事件
+            // 处理暂停/恢复文件
+            function handlePauseResume(btn) {
+                const index = parseInt(btn.getAttribute('data-index'));
+                const status = btn.getAttribute('data-status');
+                
+                console.log("暂停/恢复按钮处理:", index, status, "当前文件索引:", currentFileIndex, "上传状态:", isUploading, "暂停状态:", isPaused);
+                
+                if (isUploading && currentFileIndex === index) {
+                    if (status === 'pause') {
+                        // 暂停上传
+                        pauseUpload();
+                        btn.innerHTML = '<i class="fas fa-play"></i>';
+                        btn.setAttribute('data-status', 'resume');
+                    } else {
+                        // 恢复上传
+                        resumeUpload();
+                        btn.innerHTML = '<i class="fas fa-pause"></i>';
+                        btn.setAttribute('data-status', 'pause');
+                    }
+                }
+            }
+            
+            // 绑定移除文件和暂停/恢复文件事件
             selectedFilesList.addEventListener('click', function(e) {
+                // 处理移除文件
                 const removeBtn = e.target.closest('.remove-file');
                 if (removeBtn) {
                     const index = parseInt(removeBtn.getAttribute('data-index'));
@@ -450,24 +687,46 @@
                     // 使用新的DataTransfer对象更新fileInput.files
                     fileInput.files = dataTransfer.files;
                 }
+                
+                // 处理暂停/恢复文件
+                const pauseResumeBtn = e.target.closest('.pause-resume-file');
+                if (pauseResumeBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handlePauseResume(pauseResumeBtn);
+                }
             });
             
             // 上传按钮点击事件
             uploadBtn.addEventListener('click', function() {
-                if (fileInput.files.length > 0) {
+                if (isUploading) {
+                    // 如果正在上传，则取消上传
+                    cancelUpload();
+                } else if (fileInput.files.length > 0) {
+                    // 否则开始上传
                     uploadFiles(fileInput.files);
                 }
             });
             
             // 上传文件
             function uploadFiles(files) {
-                // 禁用上传按钮
-                uploadBtn.disabled = true;
+                // 更新上传按钮为停止上传
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-stop-circle"></i>&nbsp; 取消上传';
+                uploadBtn.className = 'cancel-upload-btn';
                 
                 // 显示进度条
                 progressContainer.style.display = 'block';
                 progressFill.style.width = '0%';
                 progressPercent.textContent = '0%';
+                
+                // 恢复模式标志
+                const isResuming = isPaused && pauseInfo.file;
+                
+                // 重置状态
+                isCancelled = false;
+                isPaused = false;
+                isUploading = true;
                 
                 // 计算文件总大小
                 let totalSize = 0;
@@ -476,20 +735,68 @@
                 }
                 
                 // 已上传大小
-                let uploadedSize = 0;
+                let uploadedSize = isResuming ? pauseInfo.uploadedSize : 0;
+                
+                // 设置初始进度条状态
+                if (isResuming && uploadedSize > 0) {
+                    const resumePercentage = Math.round((uploadedSize / totalSize) * 100);
+                    progressFill.style.width = `${resumePercentage}%`;
+                    progressPercent.textContent = `${resumePercentage}%`;
+                    progressSize.textContent = `${formatFileSize(uploadedSize)} / ${formatFileSize(totalSize)}`;
+                }
                 
                 // 循环上传每个文件
-                let currentFileIndex = 0;
+                currentFileIndex = isResuming ? pauseInfo.fileIndex : 0;
                 
                 function uploadNextFile() {
-                    if (currentFileIndex >= files.length) {
-                        // 所有文件上传完成
-                        showToast('上传完成!', 'success');
+                    if (currentFileIndex >= files.length || isCancelled) {
+                        // 所有文件上传完成或上传被取消
+                        if (!isCancelled) {
+                            showToast('上传完成!', 'success');
+                        }
                         resetUploadUI();
+                        isUploading = false;
+                        return;
+                    }
+                    
+                    if (isPaused) {
+                        console.log("上传暂停，当前文件索引:", currentFileIndex);
+                        // 保存当前状态以供恢复
+                        pauseInfo.file = files[currentFileIndex];
+                        pauseInfo.fileIndex = currentFileIndex;
+                        pauseInfo.uploadedSize = uploadedSize;
                         return;
                     }
                     
                     const file = files[currentFileIndex];
+                    // 设置当前上传的文件名为进度条容器的数据属性
+                    progressContainer.setAttribute('data-filename', file.name);
+                    
+                    // 更新暂停/恢复按钮状态
+                    const pauseResumeButtons = document.querySelectorAll('.pause-resume-file');
+                    pauseResumeButtons.forEach((btn, index) => {
+                        if (index === currentFileIndex) {
+                            btn.style.display = 'inline-block';
+                            currentPauseResumeBtn = btn; // 保存当前文件的暂停/恢复按钮
+                        } else {
+                            btn.style.display = 'none';
+                        }
+                    });
+                    
+                    // 为大文件使用分块上传
+                    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 分块
+                    
+                    // 如果文件小于 50MB，使用普通上传
+                    if (file.size < 50 * 1024 * 1024) {
+                        uploadWholeFile(file);
+                    } else {
+                        uploadLargeFile(file);
+                    }
+                }
+
+                // 常规方式上传整个文件（小文件）
+                function uploadWholeFile(file) {
+                    console.log("小文件上传", file.name, "文件大小:", formatFileSize(file.size));
                     
                     // 创建 FormData
                     const formData = new FormData();
@@ -497,16 +804,20 @@
                     
                     // 创建 XMLHttpRequest
                     const xhr = new XMLHttpRequest();
+                    activeXHR = xhr; // 保存当前活动的XHR请求
                     
                     // 进度事件
                     xhr.upload.addEventListener('progress', function(e) {
-                        if (e.lengthComputable) {
+                        if (e.lengthComputable && !isPaused && !isCancelled) {
                             // 当前文件的上传进度
                             const currentProgress = e.loaded;
                             
                             // 更新总进度
                             const overallProgress = uploadedSize + currentProgress;
                             const percentage = Math.round((overallProgress / totalSize) * 100);
+                            
+                            // 保存当前进度以支持断点续传
+                            pauseInfo.uploadedSize = uploadedSize;
                             
                             // 更新进度条
                             progressFill.style.width = `${percentage}%`;
@@ -525,40 +836,337 @@
                     
                     // 完成事件
                     xhr.addEventListener('load', function() {
-                        if (xhr.status === 200) {
+                        // 清空当前活动XHR
+                        activeXHR = null;
+                        
+                        if (xhr.status === 200 && !isCancelled) {
                             // 更新已上传大小
                             uploadedSize += file.size;
                             
                             // 上传下一个文件
                             currentFileIndex++;
                             uploadNextFile();
-                        } else {
+                        } else if (!isCancelled) {
                             showToast(`上传失败: ${xhr.statusText}`, 'error');
                             resetUploadUI();
+                            isUploading = false;
                         }
                     });
                     
                     // 错误事件
                     xhr.addEventListener('error', function() {
-                        showToast('网络错误，上传失败', 'error');
-                        resetUploadUI();
+                        // 清空当前活动XHR
+                        activeXHR = null;
+                        if (!isCancelled) {
+                            showToast('网络错误，上传失败', 'error');
+                            resetUploadUI();
+                            isUploading = false;
+                        }
+                    });
+                    
+                    // 取消事件
+                    xhr.addEventListener('abort', function() {
+                        // 清空当前活动XHR
+                        activeXHR = null;
                     });
                     
                     // 发送请求
                     xhr.open('POST', '/upload');
                     xhr.send(formData);
                 }
+
+                // 分块上传大文件
+                function uploadLargeFile(file) {
+                    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 分块
+                    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                    
+                    // 从暂停位置恢复
+                    const isResuming = pauseInfo.file && pauseInfo.file.name === file.name;
+                    let chunkIndex = isResuming ? pauseInfo.chunkIndex : 0;
+                    let chunkUploadedSize = isResuming ? pauseInfo.chunkUploadedSize : 0;
+                    
+                    console.log("大文件上传", isResuming ? "恢复上传" : "开始上传", 
+                               "文件:", file.name,
+                               "当前块:", chunkIndex, 
+                               "总块数:", totalChunks,
+                               "已上传块大小:", formatFileSize(chunkUploadedSize));
+                    
+                    function uploadNextChunk() {
+                        if (chunkIndex >= totalChunks || isCancelled) {
+                            // 所有块上传完成或上传被取消
+                            activeXHR = null;
+                            return;
+                        }
+                        
+                        if (isPaused) {
+                            // 保存当前状态以供恢复
+                            console.log("分块上传暂停，当前块索引:", chunkIndex, "已上传块大小:", formatFileSize(chunkUploadedSize));
+                            pauseInfo.chunkIndex = chunkIndex;
+                            pauseInfo.chunkUploadedSize = chunkUploadedSize;
+                            pauseInfo.file = file;
+                            pauseInfo.fileIndex = currentFileIndex;
+                            return;
+                        }
+                        
+                        const start = chunkIndex * CHUNK_SIZE;
+                        const end = Math.min(file.size, start + CHUNK_SIZE);
+                        const chunk = file.slice(start, end);
+                        
+                        console.log(`上传第 ${chunkIndex+1}/${totalChunks} 块, 大小: ${formatFileSize(chunk.size)}`);
+                        
+                        // 创建 FormData 对象
+                        const formData = new FormData();
+                        formData.append('file', chunk);
+                        formData.append('filename', file.name);
+                        formData.append('chunk_number', chunkIndex);
+                        formData.append('total_chunks', totalChunks);
+                        
+                        // 创建 XMLHttpRequest
+                        const xhr = new XMLHttpRequest();
+                        activeXHR = xhr; // 保存当前活动的XHR请求
+                        
+                        // 上传进度事件
+                        xhr.upload.addEventListener('progress', function(e) {
+                            if (e.lengthComputable && !isPaused && !isCancelled) {
+                                // 当前块的上传进度
+                                const currentChunkProgress = e.loaded;
+                                
+                                // 更新整体进度
+                                const fileProgress = chunkUploadedSize + currentChunkProgress;
+                                const overallProgress = uploadedSize + fileProgress;
+                                const percentage = Math.round((overallProgress / totalSize) * 100);
+                                
+                                // 保存当前进度信息用于恢复
+                                pauseInfo.uploadedSize = uploadedSize;
+                                
+                                // 更新进度条
+                                progressFill.style.width = `${percentage}%`;
+                                progressPercent.textContent = `${percentage}%`;
+                                progressSize.textContent = `${formatFileSize(overallProgress)} / ${formatFileSize(totalSize)}`;
+                                
+                                // 通过 Socket.IO 发送进度信息
+                                socket.emit('upload_progress', {
+                                    filename: file.name,
+                                    progress: percentage,
+                                    loaded: formatFileSize(overallProgress),
+                                    total: formatFileSize(totalSize)
+                                });
+                            }
+                        });
+                        
+                        // 完成事件
+                        xhr.addEventListener('load', function() {
+                            if (isCancelled) {
+                                activeXHR = null;
+                                return;
+                            }
+                            
+                            if (xhr.status === 200) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    
+                                    if (response.success) {
+                                        // 更新已上传的块大小
+                                        chunkUploadedSize += chunk.size;
+                                        
+                                        // 保存进度信息，以便恢复时使用
+                                        pauseInfo.chunkIndex = chunkIndex + 1; // 下一个块的索引
+                                        pauseInfo.chunkUploadedSize = chunkUploadedSize;
+                                        pauseInfo.file = file;
+                                        pauseInfo.fileIndex = currentFileIndex;
+                                        pauseInfo.uploadedSize = uploadedSize;
+                                        
+                                        // 如果是最后一个块或全部块已上传
+                                        if (response.status === 'completed') {
+                                            console.log(`文件 ${file.name} 上传完成`);
+                                            // 更新已上传总大小
+                                            uploadedSize += file.size;
+                                            
+                                            // 上传下一个文件
+                                            currentFileIndex++;
+                                            activeXHR = null;
+                                            uploadNextFile();
+                                        } else {
+                                            // 上传下一个块
+                                            console.log(`块 ${chunkIndex+1}/${totalChunks} 上传完成，进度: ${Math.round((chunkUploadedSize / file.size) * 100)}%`);
+                                            chunkIndex++;
+                                            uploadNextChunk();
+                                        }
+                                    } else {
+                                        showToast(`上传失败: ${response.error}`, 'error');
+                                        resetUploadUI();
+                                        isUploading = false;
+                                        activeXHR = null;
+                                    }
+                                } catch (e) {
+                                    showToast('上传失败: 无效的服务器响应', 'error');
+                                    resetUploadUI();
+                                    isUploading = false;
+                                    activeXHR = null;
+                                }
+                            } else {
+                                showToast(`上传失败: ${xhr.statusText}`, 'error');
+                                resetUploadUI();
+                                isUploading = false;
+                                activeXHR = null;
+                            }
+                        });
+                        
+                        // 错误事件
+                        xhr.addEventListener('error', function() {
+                            activeXHR = null;
+                            if (!isCancelled) {
+                                showToast('网络错误，上传失败', 'error');
+                                resetUploadUI();
+                                isUploading = false;
+                            }
+                        });
+                        
+                        // 取消事件
+                        xhr.addEventListener('abort', function() {
+                            activeXHR = null;
+                        });
+                        
+                        // 发送请求
+                        xhr.open('POST', '/upload/chunk');
+                        xhr.send(formData);
+                    }
+                    
+                    // 开始上传第一个块
+                    uploadNextChunk();
+                }
                 
                 // 开始上传第一个文件
                 uploadNextFile();
+            }
+            
+            // 暂停上传
+            function pauseUpload() {
+                if (isUploading) {
+                    console.log("执行暂停上传操作，当前XHR状态:", !!activeXHR);
+                    // 先设置状态标志再中止请求
+                    isPaused = true;
+                    
+                    // 保存当前文件信息，确保能够从正确位置恢复
+                    if (fileInput.files.length > currentFileIndex) {
+                        pauseInfo.file = fileInput.files[currentFileIndex];
+                        pauseInfo.fileIndex = currentFileIndex;
+                        // 其他状态(uploadedSize,chunkIndex等)在各自的进度回调中已更新
+                        
+                        console.log("暂停上传状态:", {
+                            文件: pauseInfo.file ? pauseInfo.file.name : "无",
+                            文件索引: pauseInfo.fileIndex,
+                            分块索引: pauseInfo.chunkIndex,
+                            已上传大小: formatFileSize(pauseInfo.uploadedSize),
+                            已上传块大小: formatFileSize(pauseInfo.chunkUploadedSize)
+                        });
+                    }
+                    
+                    // 更新暂停/恢复按钮的状态
+                    if (currentPauseResumeBtn) {
+                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        currentPauseResumeBtn.setAttribute('data-status', 'resume');
+                    }
+                    
+                    // 中止当前上传请求
+                    if (activeXHR) {
+                        activeXHR.abort();
+                        activeXHR = null;
+                    }
+                    
+                    showToast('上传已暂停', 'success');
+                }
+            }
+            
+            // 恢复上传
+            function resumeUpload() {
+                if (isPaused && pauseInfo.file) {
+                    console.log("执行恢复上传操作", {
+                        文件: pauseInfo.file ? pauseInfo.file.name : "无",
+                        文件索引: pauseInfo.fileIndex,
+                        分块索引: pauseInfo.chunkIndex,
+                        已上传大小: formatFileSize(pauseInfo.uploadedSize),
+                        已上传块大小: formatFileSize(pauseInfo.chunkUploadedSize)
+                    });
+                    
+                    // 更新暂停/恢复按钮的状态，但不立即清除isPaused标志
+                    if (currentPauseResumeBtn) {
+                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        currentPauseResumeBtn.setAttribute('data-status', 'pause');
+                    }
+                    
+                    // 先保持isPaused为true，让uploadFiles函数能识别这是一个恢复操作
+                    // 继续从暂停的位置上传文件
+                    const files = Array.from(fileInput.files);
+                    uploadFiles(files);
+                    
+                    showToast('继续上传', 'success');
+                }
+            }
+            
+            // 取消上传
+            function cancelUpload() {
+                if (activeXHR || isPaused) {
+                    isCancelled = true;
+                    
+                    if (activeXHR) {
+                        activeXHR.abort(); // 取消当前活动的XHR请求
+                    }
+                    
+                    // 通知服务器清理临时文件
+                    const uploadingFileName = document.querySelector('#progressContainer').getAttribute('data-filename');
+                    if (uploadingFileName) {
+                        fetch(`/cancel_upload/${encodeURIComponent(uploadingFileName)}`, {
+                            method: 'POST'
+                        }).catch(error => {
+                            console.error('无法通知服务器取消上传:', error);
+                        });
+                    }
+                    
+                    showToast('上传已取消', 'error');
+                    resetUploadUI();
+                    isUploading = false;
+                    isPaused = false;
+                    
+                    // 重置暂停信息
+                    pauseInfo = {
+                        file: null,
+                        fileIndex: 0,
+                        chunkIndex: 0,
+                        uploadedSize: 0,
+                        chunkUploadedSize: 0
+                    };
+                }
             }
             
             // 重置上传 UI
             function resetUploadUI() {
                 fileInput.value = '';
                 uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fas fa-upload"></i>&nbsp; 上传文件';
+                uploadBtn.className = 'upload-btn';
                 selectedFilesContainer.style.display = 'none';
                 progressContainer.style.display = 'none';
+                activeXHR = null;
+                isCancelled = false;
+                isPaused = false;
+                
+                // 重置暂停信息
+                pauseInfo = {
+                    file: null,
+                    fileIndex: 0,
+                    chunkIndex: 0,
+                    uploadedSize: 0,
+                    chunkUploadedSize: 0
+                };
+                
+                // 恢复所有暂停/继续按钮为暂停状态
+                const pauseResumeButtons = document.querySelectorAll('.pause-resume-file');
+                pauseResumeButtons.forEach(btn => {
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                    btn.setAttribute('data-status', 'pause');
+                    btn.style.display = 'inline-block';
+                });
             }
             
             // 文件删除事件委托
@@ -643,10 +1251,10 @@
                             </div>
                             <div class="file-actions">
                                 <a href="/download/${file.name}" class="action-btn download-btn">
-                                    <i class="fas fa-download"></i> 下载
+                                    <i class="fas fa-download"></i>&nbsp; 下载
                                 </a>
                                 <button class="action-btn delete-btn" data-filename="${file.name}">
-                                    <i class="fas fa-trash"></i> 删除
+                                    <i class="fas fa-trash"></i>&nbsp; 删除
                                 </button>
                             </div>
                         `;

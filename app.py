@@ -32,13 +32,18 @@ app = Flask(__name__,
 
 app.config['SECRET_KEY'] = 'your-secret-key'
 app.config['UPLOAD_FOLDER'] = resource_path('uploads')
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1GB
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 * 1024  # 5GB
 
 # 初始化 Socket.IO - 指定async_mode为threading，避免使用eventlet或gevent
 socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*", logger=False, engineio_logger=False)
 
 # 确保上传目录存在
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# 自定义错误处理
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify(success=False, error='文件太大。请使用浏览器访问此服务进行上传，或者使用分块上传功能。'), 413
 
 # 记录服务器状态和全局变量
 server_running = False
@@ -157,6 +162,60 @@ def upload_file():
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
+@app.route('/upload/chunk', methods=['POST'])
+def upload_chunk():
+    # 获取参数
+    chunk_number = int(request.form.get('chunk_number', 0))
+    total_chunks = int(request.form.get('total_chunks', 0))
+    filename = request.form.get('filename', '')
+    
+    # 检查参数
+    if not filename or 'file' not in request.files:
+        return jsonify(success=False, error='Invalid request parameters')
+    
+    chunk = request.files['file']
+    
+    try:
+        # 确保文件名安全
+        filename = os.path.basename(filename)
+        
+        # 创建临时目录来存储分块
+        temp_dir = os.path.join(app.config['UPLOAD_FOLDER'], '.temp_chunks')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # 为此文件创建一个唯一目录
+        file_temp_dir = os.path.join(temp_dir, filename)
+        os.makedirs(file_temp_dir, exist_ok=True)
+        
+        # 保存当前块
+        chunk_path = os.path.join(file_temp_dir, f"chunk_{chunk_number}")
+        chunk.save(chunk_path)
+        
+        # 如果这是最后一个块，合并所有块
+        if chunk_number == total_chunks - 1:
+            # 合并块
+            final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            with open(final_path, 'wb') as outfile:
+                for i in range(total_chunks):
+                    chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
+                    if os.path.exists(chunk_file_path):
+                        with open(chunk_file_path, 'rb') as infile:
+                            outfile.write(infile.read())
+            
+            # 清理临时文件
+            import shutil
+            shutil.rmtree(file_temp_dir)
+            
+            # 通知所有客户端文件已更新
+            socketio.emit('files_updated', {'files': get_files_info()})
+            
+            return jsonify(success=True, filename=filename, status='completed')
+        
+        return jsonify(success=True, filename=filename, status='chunk_uploaded')
+    
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
+
 @app.route('/download/<filename>')
 def download_file(filename):
     try:
@@ -194,6 +253,22 @@ def delete_all_files():
     except Exception as e:
         return jsonify(success=False, error=str(e))
 
+@app.route('/cancel_upload/<filename>', methods=['POST'])
+def cancel_upload(filename):
+    try:
+        # 清理临时目录下该文件的分块
+        temp_dir = os.path.join(app.config['UPLOAD_FOLDER'], '.temp_chunks')
+        if os.path.exists(temp_dir):
+            file_temp_dir = os.path.join(temp_dir, filename)
+            if os.path.exists(file_temp_dir):
+                import shutil
+                shutil.rmtree(file_temp_dir)
+                return jsonify(success=True, message=f'已取消上传并清理临时文件: {filename}')
+        
+        return jsonify(success=True, message='无需清理临时文件')
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
+
 # Socket.IO 事件处理
 @socketio.on('connect')
 def handle_connect():
@@ -210,7 +285,12 @@ if __name__ == '__main__':
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
     
     # 启动服务器线程
-    server_thread = threading.Thread(target=lambda: socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True), daemon=True)
+    server_thread = threading.Thread(target=lambda: socketio.run(
+        app, 
+        host='0.0.0.0', 
+        port=5000, 
+        allow_unsafe_werkzeug=True
+    ), daemon=True)
     server_thread.start()
     
     # 等待服务器启动
