@@ -226,7 +226,7 @@
         }
         .file-actions {
             display: flex;
-            gap: 12px;
+            gap: 6px;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -239,14 +239,13 @@
             text-decoration: none;
             display: inline-block;
             font-size: 15px;
-            min-width: 120px;
+            width: 100px;
             height: 36px;
             line-height: 20px;
             box-sizing: border-box;
             text-align: center;
             flex: 0 0 auto;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            width: auto;
         }
         .download-btn {
             background-color: #3498db;
@@ -317,7 +316,7 @@
             }
             .file-actions {
                 width: 100%;
-                justify-content: space-between;
+                justify-content: flex-end;
                 margin-top: 8px;
                 gap: 10px;
             }
@@ -331,10 +330,8 @@
                 width: auto;
             }
             .file-actions .action-btn {
-                flex: 1;
-                width: auto;
-                max-width: none;
-                min-width: 120px;
+                width: 100px;
+                flex: 0 0 auto;
                 font-size: 15px;
             }
             .clear-all-btn {
