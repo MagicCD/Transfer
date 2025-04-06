@@ -9,7 +9,7 @@ import webview
 from resource_path import resource_path
 
 # 导入app.py中的Flask应用
-from app import app, socketio, get_local_ip, exit_event
+from app import app, socketio, get_local_ip, exit_event, start_scheduler
 
 # 全局变量
 server_running = False
@@ -60,6 +60,9 @@ def create_window():
 
 # 主函数
 def main():
+    # 启动临时文件清理调度器
+    start_scheduler()
+    
     # 启动服务器线程
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()

@@ -74,12 +74,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 16px;
-            min-width: 140px;
+            width: 140px;
             height: 46px;
             line-height: 22px;
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            vertical-align: middle;
         }
         
         .file-label {
@@ -168,6 +169,18 @@
         .selected-files-list li .pause-resume-file:hover {
             color: #2980b9;
         }
+        .selected-files-list li .pause-resume-file.resume-style {
+            color: #2ecc71;
+        }
+        .selected-files-list li .pause-resume-file.resume-style:hover {
+            color: #27ae60;
+        }
+        .selected-files-list li .pause-resume-file.pause-style {
+            color: #3498db;
+        }
+        .selected-files-list li .pause-resume-file.pause-style:hover {
+            color: #2980b9;
+        }
         .selected-files-list li:last-child {
             border-bottom: none;
         }
@@ -230,6 +243,8 @@
             flex-wrap: wrap;
             align-items: center;
         }
+        
+        /* 通用按钮基本样式 */
         .action-btn {
             padding: 8px 15px;
             border: none;
@@ -246,24 +261,31 @@
             text-align: center;
             flex: 0 0 auto;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: white;
+            vertical-align: middle;
         }
+        
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 下载按钮 */
         .download-btn {
             background-color: #3498db;
-            color: white;
         }
+        
         .download-btn:hover {
             background-color: #2980b9;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
+        
+        /* 删除按钮 */
         .delete-btn {
             background-color: #e74c3c;
-            color: white;
         }
+        
         .delete-btn:hover {
             background-color: #c0392b;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
         }
         .no-files {
             text-align: center;
@@ -290,26 +312,13 @@
                 gap: 10px;
                 margin-top: 15px;
                 justify-content: center;
+                flex-wrap: wrap;
             }
             .file-label, .upload-btn, .cancel-upload-btn {
                 font-size: 15px;
-                height: 42px;
-                line-height: 20px;
-                width: auto;
-                max-width: none;
-                min-width: 120px;
-                margin: 0;
-                padding: 10px 15px;
             }
             .button-container .upload-btn, .button-container .cancel-upload-btn {
-                width: auto;
-                max-width: none;
-                min-width: 120px;
                 font-size: 15px;
-                height: 42px;
-                line-height: 20px;
-                margin-top: 0;
-                padding: 10px 15px;
             }
             .file-info {
                 min-width: 100%;
@@ -319,27 +328,21 @@
                 justify-content: flex-end;
                 margin-top: 8px;
                 gap: 10px;
+                flex-wrap: wrap;
             }
             .action-btn {
-                padding: 8px 12px;
-                margin-bottom: 5px;
-                min-width: 100px;
                 font-size: 13px;
-                flex: 1;
-                height: 36px;
-                width: auto;
+                flex: 0 0 auto;
             }
             .file-actions .action-btn {
-                width: 100px;
-                flex: 0 0 auto;
                 font-size: 15px;
+                flex: 0 0 auto;
             }
             .clear-all-btn {
-                padding: 8px 12px;
                 font-size: 15px;
-                height: 34px;
-                width: auto;
-                min-width: 120px;
+            }
+            .button-container-header .clear-all-btn {
+                font-size: 15px;
             }
         }
         .progress-container {
@@ -349,7 +352,28 @@
         }
         
         .progress-button-container {
-            margin-top: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* 暂停按钮样式 */
+        .pause-btn {
+            background-color: #3498db;
+        }
+        
+        .pause-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 恢复按钮样式 */
+        .resume-btn {
+            background-color: #2ecc71;
+        }
+        
+        .resume-btn:hover {
+            background-color: #27ae60;
         }
         
         .progress-bar {
@@ -381,13 +405,14 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 16px;
-            min-width: 140px;
+            width: 140px;
             height: 46px;
             line-height: 22px;
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border: none;
+            vertical-align: middle;
         }
         
         .cancel-upload-btn:hover {
@@ -408,13 +433,14 @@
             padding: 8px 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 100px;
+            width: 120px;
             height: 36px;
             line-height: 20px;
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             font-size: 15px;
+            vertical-align: middle;
         }
         .clear-all-btn:hover {
             background-color: #d35400;
@@ -517,6 +543,14 @@
                     <span id="progressPercent">0%</span>
                     <span id="progressSize">0MB / 0MB</span>
                 </div>
+                <div class="progress-button-container">
+                    <button id="pauseResumeBtn" class="action-btn pause-btn" data-status="pause">
+                        <i class="fas fa-pause"></i>&nbsp; 暂停
+                    </button>
+                    <button id="cancelBtn" class="action-btn delete-btn">
+                        <i class="fas fa-times"></i>&nbsp; 取消
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -577,6 +611,8 @@
             const clearAllBtn = document.getElementById('clearAllBtn');
             const uploadSection = document.getElementById('uploadSection');
             const toast = document.getElementById('toast');
+            const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
             
             // 保存当前活动的XHR请求，用于取消上传
             let activeXHR = null;
@@ -627,15 +663,20 @@
                 for (let i = 0; i < fileArray.length; i++) {
                     const file = fileArray[i];
                     const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${file.name} (${formatFileSize(file.size)})</span>
-                        <div class="file-actions">
-                            <span class="pause-resume-file" data-index="${i}" data-status="pause">
-                                <i class="fas fa-pause"></i>
-                            </span>
+                    let actionsHTML = '';
+                    // Only add remove button if upload is NOT in progress
+                    if (!isUploading) {
+                        actionsHTML = `
                             <span class="remove-file" data-index="${i}">
                                 <i class="fas fa-times"></i>
                             </span>
+                        `;
+                    }
+                    
+                    li.innerHTML = `
+                        <span>${file.name} (${formatFileSize(file.size)})</span>
+                        <div class="file-actions">
+                            ${actionsHTML}
                         </div>
                     `;
                     selectedFilesList.appendChild(li);
@@ -649,29 +690,7 @@
                 }
             }
             
-            // 处理暂停/恢复文件
-            function handlePauseResume(btn) {
-                const index = parseInt(btn.getAttribute('data-index'));
-                const status = btn.getAttribute('data-status');
-                
-                console.log("暂停/恢复按钮处理:", index, status, "当前文件索引:", currentFileIndex, "上传状态:", isUploading, "暂停状态:", isPaused);
-                
-                if (isUploading && currentFileIndex === index) {
-                    if (status === 'pause') {
-                        // 暂停上传
-                        pauseUpload();
-                        btn.innerHTML = '<i class="fas fa-play"></i>';
-                        btn.setAttribute('data-status', 'resume');
-                    } else {
-                        // 恢复上传
-                        resumeUpload();
-                        btn.innerHTML = '<i class="fas fa-pause"></i>';
-                        btn.setAttribute('data-status', 'pause');
-                    }
-                }
-            }
-            
-            // 绑定移除文件和暂停/恢复文件事件
+            // 绑定移除文件事件 (移除了暂停/恢复逻辑)
             selectedFilesList.addEventListener('click', function(e) {
                 // 处理移除文件
                 const removeBtn = e.target.closest('.remove-file');
@@ -692,14 +711,6 @@
                     // 使用新的DataTransfer对象更新fileInput.files
                     fileInput.files = dataTransfer.files;
                 }
-                
-                // 处理暂停/恢复文件
-                const pauseResumeBtn = e.target.closest('.pause-resume-file');
-                if (pauseResumeBtn) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handlePauseResume(pauseResumeBtn);
-                }
             });
             
             // 上传按钮点击事件
@@ -709,29 +720,71 @@
                     cancelUpload();
                 } else if (fileInput.files.length > 0) {
                     // 否则开始上传
-                    uploadFiles(fileInput.files);
+                    uploadFiles(Array.from(fileInput.files));
+                }
+            });
+            
+            // 暂停/恢复按钮点击事件
+            pauseResumeBtn.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                if (status === 'pause') {
+                    pauseUpload();
+                    this.innerHTML = '<i class="fas fa-play"></i>&nbsp; 继续';
+                    this.setAttribute('data-status', 'resume');
+                    this.classList.add('resume-btn');
+                    this.classList.remove('pause-btn');
+                } else {
+                    resumeUpload();
+                    this.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
+                    this.setAttribute('data-status', 'pause');
+                    this.classList.add('pause-btn');
+                    this.classList.remove('resume-btn');
+                }
+                currentPauseResumeBtn = this;
+            });
+            
+            // 取消按钮点击事件
+            cancelBtn.addEventListener('click', function() {
+                if (confirm('确定要取消当前上传吗？')) {
+                    cancelUpload();
                 }
             });
             
             // 上传文件
             function uploadFiles(files) {
-                // 更新上传按钮为停止上传
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-stop-circle"></i>&nbsp; 取消上传';
-                uploadBtn.className = 'cancel-upload-btn';
+                if (files.length === 0) {
+                    return;
+                }
                 
-                // 显示进度条
-                progressContainer.style.display = 'block';
-                progressFill.style.width = '0%';
-                progressPercent.textContent = '0%';
-                
-                // 恢复模式标志
+                // 如果是恢复上传，需要特殊处理
                 const isResuming = isPaused && pauseInfo.file;
+                
+                // 准备上传
+                if (!isResuming) {
+                    // 显示进度条
+                    progressContainer.style.display = 'block';
+                    // 设置上传按钮为取消状态
+                    uploadBtn.innerHTML = '<i class="fas fa-times"></i>&nbsp; 取消上传';
+                    uploadBtn.className = 'cancel-upload-btn';
+                    
+                    // 重置暂停/恢复按钮状态
+                    pauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
+                    pauseResumeBtn.setAttribute('data-status', 'pause');
+                    pauseResumeBtn.classList.add('pause-btn');
+                    pauseResumeBtn.classList.remove('resume-btn');
+                    currentPauseResumeBtn = pauseResumeBtn;
+                } else {
+                    // 是恢复上传，不重置按钮状态
+                    // ...保持现有逻辑
+                }
                 
                 // 重置状态
                 isCancelled = false;
                 isPaused = false;
-                isUploading = true;
+                isUploading = true; // Set upload status to true
+                
+                // Update the selected file list to remove the 'X' buttons
+                updateSelectedFilesList(files);
                 
                 // 计算文件总大小
                 let totalSize = 0;
@@ -776,17 +829,6 @@
                     const file = files[currentFileIndex];
                     // 设置当前上传的文件名为进度条容器的数据属性
                     progressContainer.setAttribute('data-filename', file.name);
-                    
-                    // 更新暂停/恢复按钮状态
-                    const pauseResumeButtons = document.querySelectorAll('.pause-resume-file');
-                    pauseResumeButtons.forEach((btn, index) => {
-                        if (index === currentFileIndex) {
-                            btn.style.display = 'inline-block';
-                            currentPauseResumeBtn = btn; // 保存当前文件的暂停/恢复按钮
-                        } else {
-                            btn.style.display = 'none';
-                        }
-                    });
                     
                     // 为大文件使用分块上传
                     const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 分块
@@ -896,6 +938,43 @@
                                "总块数:", totalChunks,
                                "已上传块大小:", formatFileSize(chunkUploadedSize));
                     
+                    // 首先检查服务器端的上传状态，确保不是暂停状态
+                    fetch(`/upload_state/${encodeURIComponent(file.name)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (data.paused) {
+                                    console.log("服务器端文件处于暂停状态，需要先恢复");
+                                    // 可能需要自动恢复或提示用户手动恢复
+                                    showToast("此文件在服务器端处于暂停状态，请先点击恢复按钮", "error");
+                                    isPaused = true;
+                                    if (currentPauseResumeBtn) {
+                                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                        currentPauseResumeBtn.setAttribute('data-status', 'resume');
+                                    }
+                                    return;
+                                }
+                                
+                                // 如果服务器有更新的块索引信息，使用服务器的信息
+                                if (data.last_chunk > chunkIndex) {
+                                    console.log(`使用服务器保存的块索引: ${data.last_chunk}`);
+                                    chunkIndex = data.last_chunk;
+                                    // 更新暂停信息
+                                    pauseInfo.chunkIndex = chunkIndex;
+                                }
+                                
+                                // 继续上传
+                                uploadNextChunk();
+                            } else {
+                                console.error("获取上传状态失败:", data.error);
+                                uploadNextChunk(); // 仍然尝试上传
+                            }
+                        })
+                        .catch(error => {
+                            console.error("检查上传状态时出错:", error);
+                            uploadNextChunk(); // 出错时仍然尝试上传
+                        });
+                    
                     function uploadNextChunk() {
                         if (chunkIndex >= totalChunks || isCancelled) {
                             // 所有块上传完成或上传被取消
@@ -998,9 +1077,20 @@
                                             uploadNextChunk();
                                         }
                                     } else {
-                                        showToast(`上传失败: ${response.error}`, 'error');
-                                        resetUploadUI();
-                                        isUploading = false;
+                                        // 检查是否是因为暂停而被拒绝
+                                        if (response.paused) {
+                                            console.log("服务器拒绝上传，原因: 已暂停");
+                                            isPaused = true;
+                                            if (currentPauseResumeBtn) {
+                                                currentPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                                currentPauseResumeBtn.setAttribute('data-status', 'resume');
+                                            }
+                                            showToast("上传已暂停，点击恢复按钮继续", "success");
+                                        } else {
+                                            showToast(`上传失败: ${response.error}`, 'error');
+                                            resetUploadUI();
+                                            isUploading = false;
+                                        }
                                         activeXHR = null;
                                     }
                                 } catch (e) {
@@ -1036,9 +1126,6 @@
                         xhr.open('POST', '/upload/chunk');
                         xhr.send(formData);
                     }
-                    
-                    // 开始上传第一个块
-                    uploadNextChunk();
                 }
                 
                 // 开始上传第一个文件
@@ -1067,16 +1154,44 @@
                         });
                     }
                     
-                    // 更新暂停/恢复按钮的状态
-                    if (currentPauseResumeBtn) {
-                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        currentPauseResumeBtn.setAttribute('data-status', 'resume');
+                    // 更新主暂停/恢复按钮的状态
+                    const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn'); // Select the main button
+                    if (mainPauseResumeBtn) { // Check if the main button exists
+                        mainPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>&nbsp; 继续';
+                        mainPauseResumeBtn.setAttribute('data-status', 'resume');
+                        mainPauseResumeBtn.classList.remove('pause-btn');
+                        mainPauseResumeBtn.classList.add('resume-btn');
                     }
                     
                     // 中止当前上传请求
                     if (activeXHR) {
                         activeXHR.abort();
                         activeXHR = null;
+                    }
+                    
+                    // 向服务器发送暂停请求，保存暂停状态
+                    if (pauseInfo.file) {
+                        fetch(`/pause_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                chunk_index: pauseInfo.chunkIndex || 0
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("服务器确认暂停上传:", data.message);
+                                // No longer need to update individual file buttons here
+                            } else {
+                                console.error("暂停上传失败:", data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("发送暂停请求时出错:", error);
+                        });
                     }
                     
                     showToast('上传已暂停', 'success');
@@ -1094,18 +1209,50 @@
                         已上传块大小: formatFileSize(pauseInfo.chunkUploadedSize)
                     });
                     
-                    // 更新暂停/恢复按钮的状态，但不立即清除isPaused标志
-                    if (currentPauseResumeBtn) {
-                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                        currentPauseResumeBtn.setAttribute('data-status', 'pause');
+                    // 更新主暂停/恢复按钮的状态
+                    const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn'); // Select the main button
+                    if (mainPauseResumeBtn) { // Check if the main button exists
+                        mainPauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
+                        mainPauseResumeBtn.setAttribute('data-status', 'pause');
+                        mainPauseResumeBtn.classList.add('pause-btn');
+                        mainPauseResumeBtn.classList.remove('resume-btn');
                     }
                     
-                    // 先保持isPaused为true，让uploadFiles函数能识别这是一个恢复操作
-                    // 继续从暂停的位置上传文件
-                    const files = Array.from(fileInput.files);
-                    uploadFiles(files);
-                    
-                    showToast('继续上传', 'success');
+                    // 向服务器发送恢复请求
+                    fetch(`/resume_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("服务器确认恢复上传:", data.message, "从块:", data.last_chunk);
+                            // 如果服务器保存了上次上传的块索引，可以更新本地状态
+                            if (data.last_chunk !== undefined && data.last_chunk !== null) {
+                                pauseInfo.chunkIndex = data.last_chunk;
+                            }
+                            
+                            // No longer need to update individual file buttons here
+                            
+                            // 先保持isPaused为true，让uploadFiles函数能识别这是一个恢复操作
+                            isPaused = false; // Set isPaused to false *before* calling uploadFiles
+                            // 继续从暂停的位置上传文件
+                            const files = Array.from(fileInput.files);
+                            uploadFiles(files);
+                            
+                            showToast('继续上传', 'success');
+                        } else {
+                            console.error("恢复上传失败:", data.error);
+                            showToast('恢复上传失败', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error("发送恢复请求时出错:", error);
+                        showToast('恢复上传请求失败', 'error');
+                    });
                 }
             }
             
@@ -1156,6 +1303,16 @@
                 isCancelled = false;
                 isPaused = false;
                 
+                // 重置主暂停/恢复按钮状态
+                const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn');
+                if (mainPauseResumeBtn) {
+                    mainPauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
+                    mainPauseResumeBtn.setAttribute('data-status', 'pause');
+                    mainPauseResumeBtn.classList.add('pause-btn');
+                    mainPauseResumeBtn.classList.remove('resume-btn');
+                }
+                currentPauseResumeBtn = null; // This variable might be removable now
+                
                 // 重置暂停信息
                 pauseInfo = {
                     file: null,
@@ -1164,14 +1321,6 @@
                     uploadedSize: 0,
                     chunkUploadedSize: 0
                 };
-                
-                // 恢复所有暂停/继续按钮为暂停状态
-                const pauseResumeButtons = document.querySelectorAll('.pause-resume-file');
-                pauseResumeButtons.forEach(btn => {
-                    btn.innerHTML = '<i class="fas fa-pause"></i>';
-                    btn.setAttribute('data-status', 'pause');
-                    btn.style.display = 'inline-block';
-                });
             }
             
             // 文件删除事件委托
@@ -1233,6 +1382,33 @@
             // 监听上传进度更新
             socket.on('upload_progress_update', function(data) {
                 console.log('收到进度更新:', data);
+            });
+            
+            // 监听上传状态更新事件
+            socket.on('upload_state_updated', function(data) {
+                console.log('上传状态更新:', data);
+                const filename = data.filename;
+                const status = data.status;
+                const isPausedUpdate = data.paused; // Renamed to avoid conflict with global isPaused
+                
+                // 如果当前正在上传的文件状态变更，也更新全局状态和进度条上的按钮
+                if (isUploading && pauseInfo.file && pauseInfo.file.name === filename) {
+                    isPaused = isPausedUpdate; // Update the global isPaused state
+                    const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn');
+                    if (mainPauseResumeBtn) {
+                        if (isPausedUpdate) {
+                            mainPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>&nbsp; 继续';
+                            mainPauseResumeBtn.setAttribute('data-status', 'resume');
+                            mainPauseResumeBtn.classList.remove('pause-btn');
+                            mainPauseResumeBtn.classList.add('resume-btn');
+                        } else {
+                            mainPauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
+                            mainPauseResumeBtn.setAttribute('data-status', 'pause');
+                            mainPauseResumeBtn.classList.add('pause-btn');
+                            mainPauseResumeBtn.classList.remove('resume-btn');
+                        }
+                    }
+                }
             });
             
             // 更新文件列表

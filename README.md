@@ -6,84 +6,138 @@
 
 <div align="center">
   <!-- 项目信息 -->
-  <a href="https://github.com/MagicCD/Transfer"><img src="https://img.shields.io/badge/python-3.8--3.13-brightgreen?style=flat-square" alt="Python Version"></a>
-  <a href="https://github.com/MagicCD/Transfer/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-orange?style=flat-square" alt="License"></a>
-  <a href="https://github.com/MagicCD/Transfer/releases/latest"><img src="https://img.shields.io/badge/release-v1.1.0-blue?style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/MagicCD/Transfer/releases"><img src="https://img.shields.io/github/downloads/MagicCD/Transfer/total?style=flat-square&color=blue&logo=github" alt="Total Downloads"></a>
+  <a href="https://github.com/MagicCD/Transfer/actions"><img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square" alt="Build Status"></a>
+  <a href="https://pypi.org/project/Flask/"><img src="https://img.shields.io/badge/Flask-2.3.3-blue?style=flat-square" alt="Flask Version"></a>
+  <a href="https://github.com/MagicCD/Transfer/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"></a>
+  <a href="https://github.com/MagicCD/Transfer/releases"><img src="https://img.shields.io/github/downloads/MagicCD/Transfer/total?style=flat-square&color=blue" alt="Downloads"></a>
   <br/>
-  <a href="https://github.com/MagicCD/Transfer/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen?style=flat-square" alt="Build Status"></a>
   <a href="https://github.com/MagicCD/Transfer/stargazers"><img src="https://img.shields.io/github/stars/MagicCD/Transfer?style=flat-square&color=yellow" alt="Stars"></a>
 </div>
 
-一个简单易用的内网文件传输工具，可在局域网内快速传输文件。这个轻量级应用程序使同一网络上的设备之间能够无缝共享文件，无需复杂设置或外部服务。通过直观的Web界面，用户可以轻松上传、下载和管理文件，支持大文件传输和多种实用功能。
+---
 
-## Features
+## 🚀 项目简介  
+一个轻量级的局域网文件传输工具，提供直观的Web界面和强大的文件管理功能。支持大文件分块上传、实时同步、跨平台运行，适用于家庭/办公室内设备间快速文件共享。
 
-✨ **简洁界面** - 干净直观的用户界面  
-📁 **多文件上传** - 一次上传多个文件（最大5GB）  
-🖱️ **拖放上传** - 简单的拖放文件上传功能  
-📦 **分块上传** - 大文件（>50MB）自动分块上传  
-⏹️ **取消上传** - 可以停止正在进行的文件上传  
-🔄 **实时更新** - 文件列表在所有连接的客户端实时更新  
-🚀 **快速传输** - 通过本地网络直接传输以获得最大速度  
-💻 **跨平台** - 支持Windows、macOS和Linux  
+---
 
-## 安装
+## 🌟 核心功能  
+| 功能分类 | 功能描述 |
+|---------|----------|
+| **基础功能** | ✅ 多文件上传（最大5GB）<br>✅ 拖放上传<br>✅ 实时文件列表同步 |
+| **高级功能** | ✅ 大文件分块上传（>50MB）<br>✅ 上传暂停/恢复<br>✅ 批量删除文件 |
+| **系统特性** | ✅ 跨平台支持（Windows/macOS/Linux）<br>✅ 自动化临时文件清理<br>✅ 安全的WebSocket通信 |
 
-### 环境要求
+---
 
-- Python 3.8 - 3.13
-- Flask 2.3.3
-- Flask-SocketIO 5.3.4
-- PyWebView 4.3
-- Werkzeug 2.3.7
-- Simple-WebSocket 1.0.0
+## 🛠️ 安装指南  
+### 环境要求  
+| 依赖库 | 版本要求 | 作用 |
+|--------|----------|------|
+| Python | 3.8-3.13 | 运行环境 |
+| Flask | 2.3.3 | Web框架 |
+| Flask-SocketIO | 5.3.4 | 实时通信 |
+| PyWebView | 4.3 | 桌面窗口封装 |
+| Werkzeug | 2.3.7 | 请求处理 |
 
-### 快速安装
-
-1. 克隆仓库：
+### 快速安装  
 ```bash
+# 克隆仓库
 git clone https://github.com/MagicCD/Transfer.git
 cd Transfer
-```
 
-2. 安装依赖：
-```bash
+# 安装依赖（推荐使用虚拟环境）
+python -m venv venv
+source venv/bin/activate  # Windows用 `venv\Scripts\activate`
 pip install -r requirements.txt
-```
 
-3. 运行应用：
-```bash
+# 启动应用
 python main.py
 ```
 
-## 使用方法
+---
 
-1. 使用 `python main.py` 启动应用
-2. 应用将在窗口中打开并显示您的本地IP地址
-3. 同一网络上的其他设备可以通过网络浏览器访问显示的IP地址和端口（例如 `http://192.168.1.100:5000`）
-4. 通过将文件拖放到上传区域或点击"选择文件"按钮上传文件
-5. 点击每个文件旁边的"下载"按钮下载文件
-6. 使用"删除"按钮删除文件
+## 📱 使用示例  
+![alt text](static/screenshot.png)  
+1. 运行后自动打开桌面窗口，显示本地IP地址（如 `http://192.168.1.100:5000`）
+2. **上传文件**：拖拽文件到上传区域或点击"选择文件"
+3. **管理文件**：  
+   - 点击文件旁的"下载"按钮下载
+   - 使用"删除"按钮删除单个文件
+   - 点击"清空全部"删除所有文件
+4. **大文件上传**：  
+   - 自动分块上传（>50MB）
+   - 暂停/恢复按钮控制上传进度
 
-## 构建说明
+---
 
-如果您想构建独立的可执行文件，请参考wiki中的[构建说明](https://github.com/MagicCD/Transfer/wiki/Build-Instructions)。
+## 📦 构建可执行文件  
+```bash
+# 安装打包工具
+pip install pyinstaller
 
-## 贡献
+# 打包命令（Windows/Linux）
+pyinstaller --onefile --windowed \
+--add-data "templates;templates" \
+--add-data "static;static" \
+--icon=static/app_icon.ico \
+main.py
 
-欢迎贡献！请随时提交Pull Request。
+# macOS特殊参数（需指定路径分隔符）
+pyinstaller --onefile --windowed \
+--add-data "templates:templates" \
+--add-data "static:static" \
+--icon=static/app_icon.icns \
+main.py
+```
 
-1. Fork仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m '添加一些很棒的功能'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 打开Pull Request
+---
 
-## 许可证
+## 🛠️ 开发贡献  
+1. **Fork仓库**并创建功能分支  
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+2. **代码规范**  
+   - 遵循PEP8规范
+   - 单元测试覆盖率需≥80%
+3. **提交PR前**  
+   - 确保通过所有CI检查
+   - 添加测试用例（修改核心逻辑时）
+   - 更新文档说明
 
-本项目采用MIT许可证 - 详情请参阅[LICENSE](LICENSE)文件。
+---
 
-## 截图
+## 🆘 常见问题  
+**Q: 服务器启动失败？**  
+A: 检查：  
+- 端口5000未被占用  
+- 依赖库版本是否匹配  
+- 防火墙设置  
 
-[在此插入截图]
+**Q: 文件上传后无法下载？**  
+A: 确认：  
+- 文件存储路径权限（默认`uploads/`）  
+- 浏览器缓存清除  
+- 服务端日志排查  
+
+---
+
+## 📄 许可证  
+MIT License - 详情见[LICENSE](LICENSE)文件  
+```  
+允许：  
+✓ 商业使用  
+✓ 修改和分发  
+✓ 私有部署  
+
+禁止：  
+✗ 移除版权声明  
+✗ 追究代码问题责任  
+```  
+
+---
+
+## 📢 联系我  
+- GitHub仓库：[https://github.com/MagicCD/Transfer](https://github.com/MagicCD/Transfer)  
+- CSDN博客：[https://blog.csdn.net/qq_52357217](https://blog.csdn.net/qq_52357217)
