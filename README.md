@@ -1,4 +1,4 @@
-# LAN File Transfer Tool
+# 内网文件传输工具
 
 <p align="center">
   <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="150" height="150">
@@ -18,20 +18,22 @@
   <a href="https://github.com/sponsors/MagicCD"><img src="https://img.shields.io/badge/$-sponsor-ff69b4?style=flat-square" alt="Sponsor"></a>
 </div>
 
-A simple and easy-to-use LAN file transfer tool that allows quick file transfers within a local network. This lightweight application enables seamless file sharing between devices on the same network without the need for complex setup or external services.
+一个简单易用的内网文件传输工具，可在局域网内快速传输文件。这个轻量级应用程序使同一网络上的设备之间能够无缝共享文件，无需复杂设置或外部服务。
 
 ## Features
 
-✨ **Simple Interface** - Clean and intuitive user interface  
-📁 **Multiple File Uploads** - Upload multiple files at once (up to 1GB)  
-🖱️ **Drag and Drop** - Easy drag and drop file upload functionality  
-🔄 **Real-time Updates** - File list updates in real-time across all connected clients  
-🚀 **Fast Transfers** - Direct transfers over your local network for maximum speed  
-💻 **Cross-Platform** - Works on Windows, macOS and Linux  
+✨ **简洁界面** - 干净直观的用户界面  
+📁 **多文件上传** - 一次上传多个文件（最大5GB）  
+🖱️ **拖放上传** - 简单的拖放文件上传功能  
+📦 **分块上传** - 大文件（>50MB）自动分块上传  
+⏹️ **取消上传** - 可以停止正在进行的文件上传  
+🔄 **实时更新** - 文件列表在所有连接的客户端实时更新  
+🚀 **快速传输** - 通过本地网络直接传输以获得最大速度  
+💻 **跨平台** - 支持Windows、macOS和Linux  
 
-## Installation
+## 安装
 
-### Prerequisites
+### 环境要求
 
 - Python 3.8 - 3.13
 - Flask 2.3.3
@@ -40,51 +42,51 @@ A simple and easy-to-use LAN file transfer tool that allows quick file transfers
 - Werkzeug 2.3.7
 - Simple-WebSocket 1.0.0
 
-### Quick Install
+### 快速安装
 
-1. Clone the repository:
+1. 克隆仓库：
 ```bash
-git clone https://github.com/yourusername/lan-file-transfer.git
-cd lan-file-transfer
+git clone https://github.com/MagicCD/Transfer.git
+cd Transfer
 ```
 
-2. Install dependencies:
+2. 安装依赖：
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+3. 运行应用：
 ```bash
 python main.py
 ```
 
-## Usage
+## 使用方法
 
-1. Start the application using `python main.py`
-2. The application will open in a window and display your local IP address
-3. Other devices on the same network can access the interface through a web browser by visiting the displayed IP address and port (e.g., `http://192.168.1.100:5000`)
-4. Upload files by dragging and dropping them into the upload area or by clicking the "Select Files" button
-5. Download files by clicking the "Download" button next to each file
-6. Delete files using the "Delete" button
+1. 使用 `python main.py` 启动应用
+2. 应用将在窗口中打开并显示您的本地IP地址
+3. 同一网络上的其他设备可以通过网络浏览器访问显示的IP地址和端口（例如 `http://192.168.1.100:5000`）
+4. 通过将文件拖放到上传区域或点击"选择文件"按钮上传文件
+5. 点击每个文件旁边的"下载"按钮下载文件
+6. 使用"删除"按钮删除文件
 
-## Build Instructions
+## 构建说明
 
-If you want to build a standalone executable, please refer to the [Build Instructions](https://github.com/yourusername/lan-file-transfer/wiki/Build-Instructions) in the wiki.
+如果您想构建独立的可执行文件，请参考wiki中的[构建说明](https://github.com/MagicCD/Transfer/wiki/Build-Instructions)。
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎贡献！请随时提交Pull Request。
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork仓库
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m '添加一些很棒的功能'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开Pull Request
 
-## License
+## 许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本项目采用MIT许可证 - 详情请参阅[LICENSE](LICENSE)文件。
 
-## Screenshots
+## 截图
 
-[Insert screenshots here] 
+[在此插入截图]
