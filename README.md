@@ -1,21 +1,21 @@
 # 内网文件传输工具
 
 <p align="center">
-  <img src="static/app_icon.svg" alt="LAN File Transfer Tool Logo" width="150" height="150">
+  <img src="static/app_icon.svg" alt="文件快传" width="150" height="150">
 </p>
 
 <div align="center">
   <!-- 项目信息 -->
-  <a href="https://github.com/MagicCD/Transfer"><img src="https://img.shields.io/badge/python-3.8+-brightgreen?style=flat-square" alt="Python Version"></a>
+  <a href="https://github.com/MagicCD/Transfer"><img src="https://img.shields.io/badge/python-3.8--3.13-brightgreen?style=flat-square" alt="Python Version"></a>
   <a href="https://github.com/MagicCD/Transfer/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-orange?style=flat-square" alt="License"></a>
-  <a href="https://github.com/MagicCD/Transfer/releases/latest"><img src="https://img.shields.io/badge/release-v1.0.0-blue?style=flat-square" alt="Latest Release"></a>
+  <a href="https://github.com/MagicCD/Transfer/releases/latest"><img src="https://img.shields.io/badge/release-v1.1.0-blue?style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/MagicCD/Transfer/releases"><img src="https://img.shields.io/github/downloads/MagicCD/Transfer/total?style=flat-square&color=blue&logo=github" alt="Total Downloads"></a>
   <br/>
   <a href="https://github.com/MagicCD/Transfer/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen?style=flat-square" alt="Build Status"></a>
   <a href="https://github.com/MagicCD/Transfer/stargazers"><img src="https://img.shields.io/github/stars/MagicCD/Transfer?style=flat-square&color=yellow" alt="Stars"></a>
 </div>
 
-一个简单易用的内网文件传输工具，可在局域网内快速传输文件。这个轻量级应用程序使同一网络上的设备之间能够无缝共享文件，无需复杂设置或外部服务。
+一个简单易用的内网文件传输工具，可在局域网内快速传输文件。这个轻量级应用程序使同一网络上的设备之间能够无缝共享文件，无需复杂设置或外部服务。通过直观的Web界面，用户可以轻松上传、下载和管理文件，支持大文件传输和多种实用功能。
 
 ## Features
 

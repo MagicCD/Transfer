@@ -26,7 +26,7 @@ def run_server():
     os.makedirs(uploads_dir, exist_ok=True)
     
     # 启动服务器
-    print(f"\n内网文件传输工具已启动!")
+    print(f"\n文件快传已启动!")
     print(f"请访问: http://{get_local_ip()}:5000")
     
     try:
@@ -55,7 +55,7 @@ def create_window():
     global window
     server_url = f"http://{get_local_ip()}:5000"
     # 注意这里窗口标题和尺寸可以根据需要调整
-    window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
+    window = webview.create_window('文件快传', server_url, width=900, height=700)
     webview.start(on_closing)
 
 # 主函数

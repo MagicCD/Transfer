@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>内网文件分享工具</title>
+    <title>文件快传</title>
     <link rel="icon" href="/static/app_icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
@@ -60,7 +60,7 @@
         }
         .large-file-info {
             color: #777;
-            font-size: 13px;
+            font-size: 16px;
             margin: 5px 0 15px 0;
         }
         .file-input {
@@ -113,7 +113,7 @@
         }
         .selected-file {
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
         }
         .selected-files-list {
@@ -123,7 +123,7 @@
             background-color: #f9f9f9;
             border-radius: 4px;
             padding: 8px;
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
             text-align: left;
         }
@@ -213,6 +213,7 @@
             align-items: center;
             gap: 12px;
             padding: 5px 0;
+            font-size: 16px;
         }
         .file-icon {
             font-size: 1.6em;
@@ -237,14 +238,15 @@
             transition: all 0.25s ease;
             text-decoration: none;
             display: inline-block;
-            font-size: 14px;
-            min-width: 100px;
+            font-size: 15px;
+            min-width: 120px;
             height: 36px;
             line-height: 20px;
             box-sizing: border-box;
             text-align: center;
             flex: 0 0 auto;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            width: auto;
         }
         .download-btn {
             background-color: #3498db;
@@ -284,26 +286,31 @@
                 padding: 20px 15px;
             }
             .button-container {
-                flex-direction: column;
+                flex-direction: row;
                 align-items: center;
                 gap: 10px;
                 margin-top: 15px;
+                justify-content: center;
             }
             .file-label, .upload-btn, .cancel-upload-btn {
                 font-size: 15px;
                 height: 42px;
                 line-height: 20px;
-                width: 100%;
-                max-width: 280px;
+                width: auto;
+                max-width: none;
+                min-width: 120px;
                 margin: 0;
+                padding: 10px 15px;
             }
             .button-container .upload-btn, .button-container .cancel-upload-btn {
-                width: 100%;
-                max-width: 280px;
+                width: auto;
+                max-width: none;
+                min-width: 120px;
                 font-size: 15px;
                 height: 42px;
                 line-height: 20px;
                 margin-top: 0;
+                padding: 10px 15px;
             }
             .file-info {
                 min-width: 100%;
@@ -312,31 +319,30 @@
                 width: 100%;
                 justify-content: space-between;
                 margin-top: 8px;
+                gap: 10px;
             }
             .action-btn {
                 padding: 8px 12px;
                 margin-bottom: 5px;
-                flex: 1;
-                margin: 0 4px 5px;
-                min-width: 0;
+                min-width: 100px;
                 font-size: 13px;
+                flex: 1;
+                height: 36px;
+                width: auto;
             }
-            .file-label, .upload-btn, .cancel-upload-btn, .clear-all-btn {
-                width: 100%;
-            }
-            .button-container, .button-container-header {
-                width: 100%;
-            }
-            .button-container .upload-btn, .button-container-header .clear-all-btn, .button-container .cancel-upload-btn {
-                width: 100%;
-                min-width: 100%;
-                max-width: 280px;
-                margin: 10px auto;
+            .file-actions .action-btn {
+                flex: 1;
+                width: auto;
+                max-width: none;
+                min-width: 120px;
+                font-size: 15px;
             }
             .clear-all-btn {
                 padding: 8px 12px;
-                font-size: 13px;
+                font-size: 15px;
                 height: 34px;
+                width: auto;
+                min-width: 120px;
             }
         }
         .progress-container {
@@ -364,7 +370,7 @@
         }
         .progress-info {
             margin-top: 5px;
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
             display: flex;
             justify-content: space-between;
@@ -405,12 +411,13 @@
             padding: 8px 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 120px;
+            min-width: 100px;
             height: 36px;
             line-height: 20px;
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 15px;
         }
         .clear-all-btn:hover {
             background-color: #d35400;
@@ -431,7 +438,7 @@
             padding: 10px 15px;
             border-radius: 4px;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 1000;
@@ -471,13 +478,14 @@
         }
         
         .button-container-header .clear-all-btn {
-            min-width: 150px;
+            min-width: 120px;
+            font-size: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-share-alt"></i> 内网文件分享服务器</h1>
+        <h1><i class="fas fa-share-alt"></i> 文件快传</h1>
         
         <div class="server-info">
             服务器地址: <strong>http://{{ server_ip }}:{{ server_port }}</strong> (可在局域网内访问)
@@ -520,7 +528,7 @@
                 <h2>已分享文件</h2>
                 <div class="button-container-header">
                     <button id="clearAllBtn" class="clear-all-btn" {% if not files %}disabled{% endif %}>
-                        <i class="fas fa-trash-alt"></i>&nbsp; 清空所有文件
+                        <i class="fas fa-trash-alt"></i>&nbsp; 清空文件
                     </button>
                 </div>
             </div>
