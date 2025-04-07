@@ -34,10 +34,24 @@ if py_version.major > 3 or (py_version.major == 3 and py_version.minor > 13):
     logger.warning("此应用程序在 Python 3.8 至 3.13 版本测试通过，更高版本可能会有兼容性问题。")
     logger.warning("尝试继续运行...\n")
 
+# 确定应用程序基础路径 (解决PyInstaller打包后的路径问题)
+if getattr(sys, 'frozen', False):
+    # 如果是打包后的exe文件
+    application_path = os.path.dirname(sys.executable)
+    running_mode = "packaged"
+else:
+    # 如果是直接运行的py脚本
+    application_path = os.path.dirname(os.path.abspath(__file__))
+    running_mode = "script"
+
+logger.info(f"Application Base Path: {application_path}")
+logger.info(f"Running Mode: {running_mode}")
+
 from flask import Flask, render_template, request, send_from_directory, jsonify, abort
 from flask_socketio import SocketIO
 
 # 创建应用并使用resource_path处理静态文件和模板路径
+# 注意：resource_path 用于访问打包到程序内部的资源 (templates, static)
 templates_dir = resource_path('templates')
 static_dir = resource_path('static') if os.path.exists(resource_path('static')) else None
 
@@ -47,10 +61,12 @@ app = Flask(__name__,
             static_folder=static_dir)
 
 app.config['SECRET_KEY'] = 'your-secret-key'
-app.config['UPLOAD_FOLDER'] = resource_path('uploads')
+# 修改 UPLOAD_FOLDER 和 TEMP_CHUNKS_DIR 使用绝对路径
+app.config['UPLOAD_FOLDER'] = os.path.join(application_path, 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 * 1024  # 5GB
 app.config['CHUNK_SIZE'] = 5 * 1024 * 1024  # 5MB
-app.config['TEMP_CHUNKS_DIR'] = os.path.join(app.config['UPLOAD_FOLDER'], '.temp_chunks')
+# TEMP_CHUNKS_DIR 也应基于 application_path
+app.config['TEMP_CHUNKS_DIR'] = os.path.join(application_path, 'uploads', '.temp_chunks')
 app.config['TEMP_FILES_MAX_AGE'] = 2  # 临时文件最长保存时间(小时)
 
 # 初始化 Socket.IO - 指定async_mode为threading，避免使用eventlet或gevent
