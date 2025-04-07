@@ -5,7 +5,6 @@
 </p>
 
 <div align="center">
-  <!-- 项目信息 -->
   <a href="https://github.com/MagicCD/Transfer/actions"><img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=flat-square" alt="Build Status"></a>
   <a href="https://pypi.org/project/Flask/"><img src="https://img.shields.io/badge/Flask-2.3.3-blue?style=flat-square" alt="Flask Version"></a>
   <a href="https://github.com/MagicCD/Transfer/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"></a>
@@ -25,8 +24,8 @@
 | 功能分类 | 功能描述 |
 |---------|----------|
 | **基础功能** | ✅ 多文件上传（最大5GB）<br>✅ 拖放上传<br>✅ 实时文件列表同步 |
-| **高级功能** | ✅ 大文件分块上传（>50MB）<br>✅ 上传暂停/恢复<br>✅ 批量删除文件 |
-| **系统特性** | ✅ 跨平台支持（Windows/macOS/Linux）<br>✅ 自动化临时文件清理<br>✅ 安全的WebSocket通信 |
+| **高级功能** | ✅ 大文件分块上传（>50MB）<br>✅ **暂停/恢复上传**（支持单文件/全部文件）<br>✅ 批量删除文件 |
+| **系统特性** | ✅ 跨平台支持（Windows/macOS/Linux）<br>✅ **自动清理过期临时文件**（默认保留2小时）<br>✅ **智能文件图标识别**（支持20+文件类型）<br>✅ 安全的WebSocket通信 |
 
 ---
 
@@ -63,11 +62,12 @@ python main.py
 2. **上传文件**：拖拽文件到上传区域或点击"选择文件"
 3. **管理文件**：  
    - 点击文件旁的"下载"按钮下载
-   - 使用"删除"按钮删除单个文件
-   - 点击"清空全部"删除所有文件
+   - 点击"删除"按钮移除单个文件
+   - 点击顶部"清空全部"删除所有文件
 4. **大文件上传**：  
    - 自动分块上传（>50MB）
-   - 暂停/恢复按钮控制上传进度
+   - 点击文件旁的"暂停/恢复"按钮控制单个文件进度
+   - 点击顶部按钮控制全部文件上传状态
 
 ---
 
@@ -140,4 +140,4 @@ MIT License - 详情见[LICENSE](LICENSE)文件
 
 ## 📢 联系我  
 - GitHub仓库：[https://github.com/MagicCD/Transfer](https://github.com/MagicCD/Transfer)  
-- CSDN博客：[https://blog.csdn.net/qq_52357217](https://blog.csdn.net/qq_52357217)
+- CSDN博客：[https://blog.csdn.net/qq_52357217](https://blog.csdn.net/qq_52357217)  

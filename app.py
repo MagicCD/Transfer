@@ -11,6 +11,11 @@ import shutil
 import webview
 import schedule
 from datetime import datetime, timedelta
+import hashlib
+import mmap
+import asyncio
+import aiofiles
+from werkzeug.utils import secure_filename
 
 # 设置日志配置
 logging.basicConfig(
@@ -244,6 +249,41 @@ def upload_file():
         logger.error(f"上传文件时出错: {str(e)}")
         return jsonify(success=False, error=str(e))
 
+async def merge_chunks_async(file_temp_dir, final_path, total_chunks):
+    """使用异步IO和内存映射合并文件块"""
+    try:
+        # 创建最终文件
+        async with aiofiles.open(final_path, 'wb') as outfile:
+            for i in range(total_chunks):
+                chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
+                if os.path.exists(chunk_file_path):
+                    # 使用内存映射读取块
+                    with open(chunk_file_path, 'rb') as infile:
+                        with mmap.mmap(infile.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                            # 计算块的MD5校验和
+                            chunk_hash = hashlib.md5(mm).hexdigest()
+                            
+                            # 检查是否已经上传过这个块
+                            chunk_hash_file = f"{chunk_file_path}.hash"
+                            if os.path.exists(chunk_hash_file):
+                                with open(chunk_hash_file, 'r') as hash_file:
+                                    existing_hash = hash_file.read().strip()
+                                    if existing_hash == chunk_hash:
+                                        # 块已经上传过，跳过
+                                        continue
+                            
+                            # 保存块的校验和
+                            with open(chunk_hash_file, 'w') as hash_file:
+                                hash_file.write(chunk_hash)
+                            
+                            # 写入最终文件
+                            await outfile.write(mm)
+        
+        return True
+    except Exception as e:
+        logger.error(f"异步合并文件块时出错: {str(e)}")
+        return False
+
 @app.route('/upload/chunk', methods=['POST'])
 def upload_chunk():
     # 获取参数
@@ -286,19 +326,15 @@ def upload_chunk():
         
         # 如果这是最后一个块，合并所有块
         if chunk_number == total_chunks - 1:
-            # 合并块 - 优化版本：流式写入，减少内存占用
+            # 使用异步IO合并块
             final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            with open(final_path, 'ab') as outfile:  # 使用追加二进制模式
-                for i in range(total_chunks):
-                    chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
-                    if os.path.exists(chunk_file_path):
-                        with open(chunk_file_path, 'rb') as infile:
-                            # 逐块读写，减少内存占用
-                            while True:
-                                data = infile.read(1024*1024)  # 每次读取1MB
-                                if not data:
-                                    break
-                                outfile.write(data)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            success = loop.run_until_complete(merge_chunks_async(file_temp_dir, final_path, total_chunks))
+            loop.close()
+            
+            if not success:
+                return jsonify(success=False, error='Failed to merge chunks')
             
             # 清理临时文件
             try:

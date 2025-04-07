@@ -7,7 +7,7 @@
     <link rel="icon" href="/static/app_icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -75,6 +75,7 @@
                             <div>
                                 {{ file.name }}<br>
                                 <small>{{ file.size_formatted }}</small>
+                                <small class="file-time">{{ file.modified_time }}</small>
                             </div>
                         </div>
                         <div class="file-actions">
