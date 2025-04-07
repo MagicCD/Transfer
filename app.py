@@ -250,39 +250,74 @@ def upload_file():
         return jsonify(success=False, error=str(e))
 
 async def merge_chunks_async(file_temp_dir, final_path, total_chunks):
-    """使用异步IO和内存映射合并文件块"""
+    """使用异步IO、内存映射和并发处理合并文件块"""
     try:
         # 创建最终文件
         async with aiofiles.open(final_path, 'wb') as outfile:
+            # 并发任务列表
+            tasks = []
+            chunk_data = {}  # 存储块数据和位置信息的字典
+            
+            # 先处理所有块的校验和检查，并准备并发任务
             for i in range(total_chunks):
                 chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
                 if os.path.exists(chunk_file_path):
-                    # 使用内存映射读取块
-                    with open(chunk_file_path, 'rb') as infile:
-                        with mmap.mmap(infile.fileno(), 0, access=mmap.ACCESS_READ) as mm:
-                            # 计算块的MD5校验和
-                            chunk_hash = hashlib.md5(mm).hexdigest()
-                            
-                            # 检查是否已经上传过这个块
-                            chunk_hash_file = f"{chunk_file_path}.hash"
-                            if os.path.exists(chunk_hash_file):
-                                with open(chunk_hash_file, 'r') as hash_file:
-                                    existing_hash = hash_file.read().strip()
-                                    if existing_hash == chunk_hash:
-                                        # 块已经上传过，跳过
-                                        continue
-                            
-                            # 保存块的校验和
-                            with open(chunk_hash_file, 'w') as hash_file:
-                                hash_file.write(chunk_hash)
-                            
-                            # 写入最终文件
-                            await outfile.write(mm)
+                    # 创建异步任务读取块数据
+                    task = asyncio.create_task(process_chunk(chunk_file_path, i, chunk_data))
+                    tasks.append(task)
+            
+            # 等待所有块处理完成
+            if tasks:
+                await asyncio.gather(*tasks)
+            
+            # 按顺序写入数据块
+            for i in range(total_chunks):
+                if i in chunk_data:
+                    await outfile.write(chunk_data[i])
+                    # 清理内存中的数据块
+                    chunk_data[i] = None
         
         return True
     except Exception as e:
         logger.error(f"异步合并文件块时出错: {str(e)}")
+        # 删除部分写入的文件，避免损坏文件残留
+        if os.path.exists(final_path):
+            try:
+                os.remove(final_path)
+                logger.info(f"已删除部分写入的文件: {final_path}")
+            except Exception as del_error:
+                logger.error(f"无法删除部分写入的文件: {str(del_error)}")
         return False
+
+async def process_chunk(chunk_file_path, chunk_index, chunk_data):
+    """异步处理单个分块"""
+    try:
+        # 使用内存映射读取块
+        with open(chunk_file_path, 'rb') as infile:
+            with mmap.mmap(infile.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                # 计算块的MD5校验和
+                chunk_hash = hashlib.md5(mm).hexdigest()
+                
+                # 检查是否已经上传过这个块
+                chunk_hash_file = f"{chunk_file_path}.hash"
+                if os.path.exists(chunk_hash_file):
+                    with open(chunk_hash_file, 'r') as hash_file:
+                        existing_hash = hash_file.read().strip()
+                        if existing_hash == chunk_hash:
+                            # 块已经上传过，使用空数据替代
+                            chunk_data[chunk_index] = b''
+                            return
+                
+                # 保存块的校验和
+                with open(chunk_hash_file, 'w') as hash_file:
+                    hash_file.write(chunk_hash)
+                
+                # 读取数据并存储在字典中
+                chunk_data[chunk_index] = mm.read()
+    except Exception as e:
+        logger.error(f"处理分块 {chunk_index} 时出错: {str(e)}")
+        # 放入空数据以保持索引完整性
+        chunk_data[chunk_index] = b''
 
 @app.route('/upload/chunk', methods=['POST'])
 def upload_chunk():
@@ -311,6 +346,7 @@ def upload_chunk():
         return jsonify(success=False, error='Upload paused', paused=True)
     
     chunk = request.files['file']
+    file_temp_dir = None
     
     try:
         # 确保文件名安全
@@ -328,17 +364,35 @@ def upload_chunk():
         if chunk_number == total_chunks - 1:
             # 使用异步IO合并块
             final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            success = loop.run_until_complete(merge_chunks_async(file_temp_dir, final_path, total_chunks))
-            loop.close()
+            
+            # 使用 asyncio.run() 替代手动管理事件循环
+            try:
+                success = asyncio.run(merge_chunks_async(file_temp_dir, final_path, total_chunks))
+            except RuntimeError as e:
+                # 处理已有事件循环的情况
+                if "There is no current event loop in thread" in str(e):
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    success = loop.run_until_complete(merge_chunks_async(file_temp_dir, final_path, total_chunks))
+                    loop.close()
+                else:
+                    # 删除部分写入的文件（如果存在）
+                    if os.path.exists(final_path):
+                        try:
+                            os.remove(final_path)
+                            logger.info(f"已删除部分写入的文件: {final_path}")
+                        except Exception as del_error:
+                            logger.error(f"无法删除部分写入的文件: {str(del_error)}")
+                    raise
             
             if not success:
+                # 不删除临时目录，以便用户可以重试
                 return jsonify(success=False, error='Failed to merge chunks')
             
             # 清理临时文件
             try:
                 shutil.rmtree(file_temp_dir)
+                file_temp_dir = None  # 标记为已清理
             except Exception as e:
                 logger.error(f"清理临时分块目录出错: {str(e)}")
             
@@ -360,6 +414,16 @@ def upload_chunk():
     
     except Exception as e:
         logger.error(f"处理分块上传时出错: {str(e)}")
+        
+        # 删除部分写入的文件（如果存在）
+        final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(final_path):
+            try:
+                os.remove(final_path)
+                logger.info(f"已删除部分写入的文件: {final_path}")
+            except Exception as del_error:
+                logger.error(f"无法删除部分写入的文件: {str(del_error)}")
+        
         return jsonify(success=False, error=str(e))
 
 @app.route('/download/<filename>')
