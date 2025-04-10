@@ -5,7 +5,6 @@ import os
 import threading
 import time
 import webview
-import traceback
 from resource_path import resource_path
 
 # 导入app.py中的Flask应用
@@ -71,8 +70,7 @@ def create_window():
     global window
 
     # 获取服务器URL
-    server_ip = get_local_ip()
-    server_url = f"http://{server_ip}:5000"
+    server_url = f"http://{get_local_ip()}:5000"
 
     # 设置窗口标题和图标
     title = '文件快传'
@@ -98,17 +96,12 @@ def create_window():
 
         # 启动webview
         webview.start(on_closing)
+        return True
     except Exception as e:
         print(f"创建窗口时出错: {e}")
         # 如果创建窗口失败，仍然运行服务器
         print(f"服务器仍然在运行，请访问: {server_url}")
-        # 阻塞主线程，直到用户手动终止
-        try:
-            while server_running:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("用户终止程序")
-            stop_server()
+        return False
 
 # 主函数
 def main():
@@ -144,16 +137,23 @@ def main():
 
         # 等待服务器启动
         print("正在启动服务器...")
-        for i in range(5):
-            if server_running:
-                break
+        wait_attempts = 5
+        while wait_attempts > 0 and not server_running:
             time.sleep(0.5)
+            wait_attempts -= 1
 
         if not server_running:
             print("警告: 服务器启动可能延迟")
 
         # 创建WebView窗口
-        create_window()
+        if not create_window():
+            # 如果窗口创建失败，阻塞主线程直到用户手动终止
+            try:
+                while server_running:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("用户终止程序")
+                stop_server()
     except Exception as e:
         print(f"程序启动时出错: {e}")
         import traceback

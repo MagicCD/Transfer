@@ -291,12 +291,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 activeXHR = null;
 
                 if (xhr.status === 200 && !isCancelled) {
-                    // 更新已上传大小
-                    uploadedSize += file.size;
+                    try {
+                        const response = JSON.parse(xhr.responseText);
 
-                    // 上传下一个文件
-                    currentFileIndex++;
-                    uploadNextFile();
+                        if (response.success) {
+                            // 正常上传成功
+                            // 更新已上传大小
+                            uploadedSize += file.size;
+
+                            // 上传下一个文件
+                            currentFileIndex++;
+                            uploadNextFile();
+                        } else if (response.use_chunked_upload) {
+                            // 服务器要求使用分块上传
+                            console.log("服务器要求使用分块上传，切换到分块上传模式");
+                            showToast(response.message || "文件过大，切换到分块上传模式", 'info');
+
+                            // 直接调用分块上传函数
+                            uploadLargeFile(file);
+                        } else {
+                            // 其他错误
+                            showToast(`上传失败: ${response.error || '未知错误'}`, 'error');
+                            resetUploadUI();
+                            isUploading = false;
+                        }
+                    } catch (e) {
+                        console.error("解析响应时出错:", e);
+                        showToast('上传失败: 无效的服务器响应', 'error');
+                        resetUploadUI();
+                        isUploading = false;
+                    }
                 } else if (!isCancelled) {
                     showToast(`上传失败: ${xhr.statusText}`, 'error');
                     resetUploadUI();
@@ -358,6 +382,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        console.log("获取文件上传状态:", data);
+
+                        // 检查是否暂停
                         if (data.paused) {
                             console.log("服务器端文件处于暂停状态，需要先恢复");
                             // 可能需要自动恢复或提示用户手动恢复
@@ -370,12 +397,29 @@ document.addEventListener('DOMContentLoaded', function() {
                             return;
                         }
 
+                        // 检查是否有合并失败的标记
+                        if (data.merge_failed) {
+                            console.log("之前的合并操作失败，将重试上传");
+                            showToast("之前的文件合并失败，将重新尝试", "warning");
+                        }
+
+                        // 检查是否有错误信息
+                        if (data.error) {
+                            console.log("上传过程中出现错误:", data.error);
+                            showToast(`上传错误: ${data.error}`, "warning");
+                        }
+
                         // 如果服务器有更新的块索引信息，使用服务器的信息
                         if (data.last_chunk > chunkIndex) {
                             console.log(`使用服务器保存的块索引: ${data.last_chunk}`);
                             chunkIndex = data.last_chunk;
                             // 更新暂停信息
                             pauseInfo.chunkIndex = chunkIndex;
+                        }
+
+                        // 如果服务器有总块数信息，验证是否与客户端计算的一致
+                        if (data.total_chunks > 0 && data.total_chunks !== totalChunks) {
+                            console.warn(`服务器端总块数(${data.total_chunks})与客户端计算的(${totalChunks})不一致`);
                         }
 
                         // 继续上传
@@ -501,6 +545,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                         currentPauseResumeBtn.setAttribute('data-status', 'resume');
                                     }
                                     showToast("上传已暂停，点击恢复按钮继续", "success");
+                                } else if (response.merge_failed) {
+                                    // 合并失败的情况
+                                    console.log("文件块合并失败，将在下次上传时重试");
+                                    showToast(`文件合并失败: ${response.error || '未知错误'}`, 'warning');
+
+                                    // 标记为暂停，以便用户可以重试
+                                    isPaused = true;
+                                    if (currentPauseResumeBtn) {
+                                        currentPauseResumeBtn.innerHTML = '<i class="fas fa-play"></i>';
+                                        currentPauseResumeBtn.setAttribute('data-status', 'resume');
+                                    }
                                 } else {
                                     showToast(`上传失败: ${response.error}`, 'error');
                                     resetUploadUI();
@@ -644,41 +699,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainPauseResumeBtn.classList.remove('resume-btn');
             }
 
-            // 向服务器发送恢复请求
-            fetch(`/resume_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("服务器确认恢复上传:", data.message, "从块:", data.last_chunk);
-                    // 如果服务器保存了上次上传的块索引，可以更新本地状态
-                    if (data.last_chunk !== undefined && data.last_chunk !== null) {
-                        pauseInfo.chunkIndex = data.last_chunk;
+            // 先检查服务器端的上传状态
+            fetch(`/upload_state/${encodeURIComponent(pauseInfo.file.name)}`)
+                .then(response => response.json())
+                .then(serverState => {
+                    if (serverState.success) {
+                        console.log("恢复前获取服务器状态:", serverState);
+
+                        // 如果服务器有更新的块索引信息，使用服务器的信息
+                        if (serverState.last_chunk > pauseInfo.chunkIndex) {
+                            console.log(`使用服务器保存的块索引: ${serverState.last_chunk}`);
+                            pauseInfo.chunkIndex = serverState.last_chunk;
+                        }
+
+                        // 向服务器发送恢复请求
+                        return fetch(`/resume_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                client_chunk_index: pauseInfo.chunkIndex
+                            })
+                        });
+                    } else {
+                        throw new Error("获取服务器状态失败: " + (serverState.error || '未知错误'));
                     }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log("服务器确认恢复上传:", data);
 
-                    // No longer need to update individual file buttons here
+                        // 如果服务器清理了损坏块，显示通知
+                        if (data.cleaned_chunks > 0) {
+                            showToast(`服务器清理了 ${data.cleaned_chunks} 个损坏块`, 'info');
+                        }
 
-                    // 先保持isPaused为true，让uploadFiles函数能识别这是一个恢复操作
-                    isPaused = false; // Set isPaused to false *before* calling uploadFiles
-                    // 继续从暂停的位置上传文件
-                    const files = Array.from(fileInput.files);
-                    uploadFiles(files);
+                        // 如果服务器保存了上次上传的块索引，可以更新本地状态
+                        if (data.last_chunk !== undefined && data.last_chunk !== null) {
+                            pauseInfo.chunkIndex = data.last_chunk;
+                        }
 
-                    showToast('继续上传', 'success');
-                } else {
-                    console.error("恢复上传失败:", data.error);
-                    showToast('恢复上传失败', 'error');
-                }
-            })
-            .catch(error => {
-                console.error("发送恢复请求时出错:", error);
-                showToast('恢复上传请求失败', 'error');
-            });
+                        // 检查服务器是否有临时目录
+                        if (data.has_temp_dir === false) {
+                            console.warn("服务器没有临时目录，可能需要重新开始上传");
+                            showToast('服务器没有临时文件，将重新开始上传', 'warning');
+                            // 重置分块索引，从头开始上传
+                            pauseInfo.chunkIndex = 0;
+                            pauseInfo.chunkUploadedSize = 0;
+                        }
+
+                        // 先设置为非暂停状态
+                        isPaused = false;
+
+                        // 继续从暂停的位置上传文件
+                        const files = Array.from(fileInput.files);
+                        uploadFiles(files);
+
+                        showToast('继续上传', 'success');
+                    } else {
+                        console.error("恢复上传失败:", data.error);
+                        showToast(`恢复上传失败: ${data.error || '未知错误'}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("恢复上传过程中出错:", error);
+                    showToast(`恢复上传失败: ${error.message || '未知错误'}`, 'error');
+                });
         }
     }
 
@@ -804,6 +892,34 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.on('files_updated', function(data) {
         updateFileList(data.files);
     });
+
+    // 定期刷新文件列表
+    function refreshFileList(forceRefresh = false) {
+        fetch(`/files?force_refresh=${forceRefresh ? 'true' : 'false'}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateFileList(data.files);
+                    console.log(
+                        `文件列表已刷新, 包含 ${data.files.length} 个文件, ` +
+                        `缓存时间: ${new Date(data.cache_time * 1000).toLocaleTimeString()}, ` +
+                        `当前时间: ${new Date(data.current_time * 1000).toLocaleTimeString()}, ` +
+                        `缓存TTL: ${data.cache_ttl}秒`
+                    );
+                } else {
+                    console.error('获取文件列表失败:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('刷新文件列表时出错:', error);
+            });
+    }
+
+    // 页面加载时刷新文件列表
+    refreshFileList(true);
+
+    // 每10秒自动刷新文件列表（使用缓存）
+    setInterval(() => refreshFileList(false), 10000);
 
     // 监听上传进度更新
     socket.on('upload_progress_update', function(data) {

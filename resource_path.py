@@ -8,6 +8,9 @@ import logging
 # 创建日志对象
 logger = logging.getLogger(__name__)
 
+# 设置日志级别，默认只显示错误信息
+logger.setLevel(logging.ERROR)
+
 # 路径缓存字典
 _path_cache = {}
 
@@ -20,14 +23,9 @@ def resource_path(relative_path):
         return _path_cache[relative_path]
 
     try:
-        if hasattr(sys, '_MEIPASS'):
-            # PyInstaller打包后的临时目录路径
-            base_path = sys._MEIPASS
-            logger.debug(f"Using PyInstaller base path: {base_path}")
-        else:
-            # 开发环境下的当前目录
-            base_path = os.path.abspath(".")
-            logger.debug(f"Using development base path: {base_path}")
+        # 确定基础路径
+        base_path = sys._MEIPASS if hasattr(sys, '_MEIPASS') else os.path.abspath(".")
+        logger.debug(f"Using base path: {base_path}")
 
         # 生成完整路径
         full_path = os.path.join(base_path, relative_path)
@@ -48,8 +46,9 @@ def resource_path(relative_path):
 def clear_path_cache():
     """清除路径缓存字典"""
     global _path_cache
-    _path_cache = {}
-    logger.debug("Resource path cache cleared")
+    cache_size = len(_path_cache)
+    _path_cache.clear()
+    logger.debug(f"Resource path cache cleared: {cache_size} items")
 
 # 检查资源路径是否存在
 def resource_exists(relative_path):

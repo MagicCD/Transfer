@@ -12,7 +12,6 @@ def svg_to_ico():
     try:
         # 检查目标文件是否已存在
         icon_path = os.path.join('static', 'app_icon.ico')
-        svg_path = os.path.join('static', 'app_icon.svg')
 
         # 检查目标文件是否已存在且有效
         if os.path.exists(icon_path) and os.path.getsize(icon_path) > 0:
@@ -85,25 +84,12 @@ def svg_to_ico():
         return None
 
 def main():
-    """主函数，处理命令行参数并调用图标转换函数"""
-    import argparse
-
-    # 创建命令行参数解析器
-    parser = argparse.ArgumentParser(description='Convert PNG icon to ICO format with multiple sizes')
-    parser.add_argument('--png', help='Path to PNG file (default: static/app_icon.png)')
-    parser.add_argument('--output', help='Output ICO file path (default: static/app_icon.ico)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose output')
-
-    args = parser.parse_args()
-
+    """主函数，调用图标转换函数"""
     # 调用图标转换函数
     result = svg_to_ico()
 
     # 返回适当的退出代码
-    if result:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    sys.exit(0 if result else 1)
 
 if __name__ == "__main__":
     main()
