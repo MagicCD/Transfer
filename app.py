@@ -16,6 +16,7 @@ import mmap
 import asyncio
 import aiofiles
 from werkzeug.utils import secure_filename
+import gc  # 添加垃圾回收模块
 
 # 设置日志配置
 logging.basicConfig(
@@ -55,9 +56,9 @@ from flask_socketio import SocketIO
 templates_dir = resource_path('templates')
 static_dir = resource_path('static') if os.path.exists(resource_path('static')) else None
 
-app = Flask(__name__, 
+app = Flask(__name__,
             template_folder=templates_dir,
-            static_url_path='/static', 
+            static_url_path='/static',
             static_folder=static_dir)
 
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -99,66 +100,72 @@ def get_local_ip():
     except Exception:
         return '127.0.0.1'  # 如果获取失败，返回本地回环地址
 
+# 文件图标缓存字典
+file_icon_cache = {}
+
 # 获取文件图标 - 优化版本
 def get_file_icon(filename):
+    # 检查缓存中是否已有此文件的图标
+    if filename in file_icon_cache:
+        return file_icon_cache[filename]
+
     filename_lower = filename.lower()
-    
+
     # 处理复合扩展名
-    if filename_lower.endswith('.tar.gz'):
-        return 'fa-file-archive'
-    elif filename_lower.endswith('.tar.bz2'):
-        return 'fa-file-archive'
-    
-    # 处理单一扩展名
-    extension = os.path.splitext(filename_lower)[1]
-    
-    icon_map = {
-        # 图像文件
-        '.jpg': 'fa-image', '.jpeg': 'fa-image', '.png': 'fa-image', '.gif': 'fa-image',
-        '.bmp': 'fa-image', '.svg': 'fa-image', '.webp': 'fa-image',
-        
-        # 视频文件
-        '.mp4': 'fa-video', '.avi': 'fa-video', '.mov': 'fa-video', '.wmv': 'fa-video',
-        '.flv': 'fa-video', '.mkv': 'fa-video', '.webm': 'fa-video',
-        
-        # 音频文件
-        '.mp3': 'fa-music', '.wav': 'fa-music', '.ogg': 'fa-music', '.flac': 'fa-music',
-        '.aac': 'fa-music', '.m4a': 'fa-music',
-        
-        # 文档文件
-        '.pdf': 'fa-file-pdf',
-        '.doc': 'fa-file-word', '.docx': 'fa-file-word',
-        '.xls': 'fa-file-excel', '.xlsx': 'fa-file-excel', '.csv': 'fa-file-excel',
-        '.ppt': 'fa-file-powerpoint', '.pptx': 'fa-file-powerpoint',
-        '.txt': 'fa-file-alt', '.md': 'fa-file-alt', '.rtf': 'fa-file-alt',
-        
-        # 压缩文件
-        '.zip': 'fa-file-archive', '.rar': 'fa-file-archive', '.7z': 'fa-file-archive',
-        '.tar': 'fa-file-archive', '.gz': 'fa-file-archive', '.bz2': 'fa-file-archive',
-        
-        # 代码文件
-        '.html': 'fa-file-code', '.css': 'fa-file-code', '.js': 'fa-file-code',
-        '.py': 'fa-file-code', '.java': 'fa-file-code', '.c': 'fa-file-code',
-        '.cpp': 'fa-file-code', '.php': 'fa-file-code', '.json': 'fa-file-code',
-        '.xml': 'fa-file-code', '.yaml': 'fa-file-code', '.yml': 'fa-file-code',
-        
-        # 可执行文件
-        '.exe': 'fa-file-invoice', '.msi': 'fa-file-invoice',
-        '.bat': 'fa-file-invoice', '.sh': 'fa-file-invoice',
-    }
-    
-    return icon_map.get(extension, 'fa-file')  # 返回对应图标或默认图标
+    if filename_lower.endswith('.tar.gz') or filename_lower.endswith('.tar.bz2'):
+        icon = 'fa-file-archive'
+    else:
+        # 处理单一扩展名
+        extension = os.path.splitext(filename_lower)[1]
+
+        # 使用字典分组来减少代码量和提高可读性
+        icon_groups = {
+            'fa-image': ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp'],
+            'fa-video': ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.mkv', '.webm'],
+            'fa-music': ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'],
+            'fa-file-pdf': ['.pdf'],
+            'fa-file-word': ['.doc', '.docx'],
+            'fa-file-excel': ['.xls', '.xlsx', '.csv'],
+            'fa-file-powerpoint': ['.ppt', '.pptx'],
+            'fa-file-alt': ['.txt', '.md', '.rtf'],
+            'fa-file-archive': ['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2'],
+            'fa-file-code': ['.html', '.css', '.js', '.py', '.java', '.c', '.cpp', '.php', '.json', '.xml', '.yaml', '.yml'],
+            'fa-file-invoice': ['.exe', '.msi', '.bat', '.sh']
+        }
+
+        # 查找扩展名对应的图标
+        icon = 'fa-file'  # 默认图标
+        for icon_class, extensions in icon_groups.items():
+            if extension in extensions:
+                icon = icon_class
+                break
+
+    # 将结果存入缓存
+    file_icon_cache[filename] = icon
+    return icon
+
+# 文件大小格式化缓存
+file_size_cache = {}
 
 # 格式化文件大小
 def format_file_size(size_bytes):
+    # 检查缓存中是否已有此大小的格式化结果
+    if size_bytes in file_size_cache:
+        return file_size_cache[size_bytes]
+
+    # 计算格式化结果
     if size_bytes < 1024:
-        return f"{size_bytes} B"
+        result = f"{size_bytes} B"
     elif size_bytes < 1024 * 1024:
-        return f"{size_bytes / 1024:.2f} KB"
+        result = f"{size_bytes / 1024:.2f} KB"
     elif size_bytes < 1024 * 1024 * 1024:
-        return f"{size_bytes / (1024 * 1024):.2f} MB"
+        result = f"{size_bytes / (1024 * 1024):.2f} MB"
     else:
-        return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
+        result = f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
+
+    # 将结果存入缓存
+    file_size_cache[size_bytes] = result
+    return result
 
 # 清理过期的临时文件
 def clean_temp_files():
@@ -166,48 +173,60 @@ def clean_temp_files():
         temp_dir = app.config['TEMP_CHUNKS_DIR']
         if not os.path.exists(temp_dir):
             return
-            
+
         current_time = datetime.now()
         max_age = timedelta(hours=app.config['TEMP_FILES_MAX_AGE'])
-        
+
         # 遍历临时目录中的所有文件
         for dirname in os.listdir(temp_dir):
             dir_path = os.path.join(temp_dir, dirname)
             if not os.path.isdir(dir_path):
                 continue
-                
+
             # 获取文件夹的修改时间
             dir_modified_time = datetime.fromtimestamp(os.path.getmtime(dir_path))
-            
+
             # 如果文件夹超过最大保留时间，则删除
             if current_time - dir_modified_time > max_age:
                 logger.info(f"清理过期临时分块: {dirname}")
                 shutil.rmtree(dir_path)
     except Exception as e:
         logger.error(f"清理临时文件时出错: {str(e)}")
-        
+
     # 清理过期的上传状态信息
     try:
         # 创建要删除的键列表
         keys_to_delete = []
-        
+
         # 检查所有上传状态
         for filename, state in upload_states.items():
             # 获取状态的最后更新时间
             last_update = state.get('timestamp')
             if last_update and (current_time - last_update > max_age):
                 keys_to_delete.append(filename)
-                
-        # 删除过期的状态信息        
+
+        # 删除过期的状态信息
         for key in keys_to_delete:
             logger.info(f"清理过期上传状态: {key}")
             upload_states.pop(key, None)
-            
+
     except Exception as e:
         logger.error(f"清理上传状态时出错: {str(e)}")
 
+# 文件信息缓存
+files_info_cache = {}
+files_info_cache_time = 0
+FILES_CACHE_TTL = 5  # 缓存有效期（秒）
+
 # 获取所有文件信息
-def get_files_info():
+def get_files_info(force_refresh=False):
+    global files_info_cache, files_info_cache_time
+
+    # 检查缓存是否有效
+    current_time = time.time()
+    if not force_refresh and files_info_cache and current_time - files_info_cache_time < FILES_CACHE_TTL:
+        return files_info_cache
+
     files = []
     upload_dir = app.config['UPLOAD_FOLDER']
     if os.path.exists(upload_dir):
@@ -215,51 +234,60 @@ def get_files_info():
             file_path = os.path.join(upload_dir, filename)
             if os.path.isfile(file_path):
                 size = os.path.getsize(file_path)
+                modified_time = os.path.getmtime(file_path)
+                modified_time_str = datetime.fromtimestamp(modified_time).strftime('%Y-%m-%d %H:%M:%S')
+
                 files.append({
                     'name': filename,
                     'size': size,
                     'size_formatted': format_file_size(size),
-                    'icon': get_file_icon(filename)
+                    'icon': get_file_icon(filename),
+                    'modified_time': modified_time_str
                 })
-    return sorted(files, key=lambda x: x['name'])
+
+    # 更新缓存
+    files_info_cache = sorted(files, key=lambda x: x['name'])
+    files_info_cache_time = current_time
+
+    return files_info_cache
 
 # 路由处理
 
 @app.route('/')
 def index():
-    return render_template('index.html', 
-                           server_ip=get_local_ip(), 
-                           server_port=5000, 
-                           files=get_files_info())
+    return render_template('index.html',
+                           server_ip=get_local_ip(),
+                           server_port=5000,
+                           files=get_files_info(force_refresh=False))
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
     # 检查是否有文件部分
     if 'file' not in request.files:
         return jsonify(success=False, error='No file part')
-    
+
     file = request.files['file']
-    
+
     # 如果用户没有选择文件
     if file.filename == '':
         return jsonify(success=False, error='No selected file')
-    
+
     # 保存文件
     try:
         filename = os.path.basename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        
+
         # 初始化上传状态
         upload_states[filename] = {
             'paused': False,
             'last_chunk': 0,
             'timestamp': datetime.now()
         }
-        
+
         # 通知所有客户端文件已更新
-        socketio.emit('files_updated', {'files': get_files_info()})
-        
+        socketio.emit('files_updated', {'files': get_files_info(force_refresh=True)})
+
         return jsonify(success=True, filename=filename)
     except Exception as e:
         logger.error(f"上传文件时出错: {str(e)}")
@@ -270,29 +298,39 @@ async def merge_chunks_async(file_temp_dir, final_path, total_chunks):
     try:
         # 创建最终文件
         async with aiofiles.open(final_path, 'wb') as outfile:
-            # 并发任务列表
-            tasks = []
-            chunk_data = {}  # 存储块数据和位置信息的字典
-            
-            # 先处理所有块的校验和检查，并准备并发任务
-            for i in range(total_chunks):
-                chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
-                if os.path.exists(chunk_file_path):
-                    # 创建异步任务读取块数据
-                    task = asyncio.create_task(process_chunk(chunk_file_path, i, chunk_data))
-                    tasks.append(task)
-            
-            # 等待所有块处理完成
-            if tasks:
-                await asyncio.gather(*tasks)
-            
-            # 按顺序写入数据块
-            for i in range(total_chunks):
-                if i in chunk_data:
-                    await outfile.write(chunk_data[i])
-                    # 清理内存中的数据块
-                    chunk_data[i] = None
-        
+            # 使用批处理方式处理块，避免一次性加载所有块到内存
+            batch_size = min(10, total_chunks)  # 每批处理的块数量，根据可用内存调整
+
+            for batch_start in range(0, total_chunks, batch_size):
+                batch_end = min(batch_start + batch_size, total_chunks)
+                logger.info(f"处理块批次 {batch_start}-{batch_end-1}/{total_chunks-1}")
+
+                # 并发任务列表
+                tasks = []
+                chunk_data = {}  # 存储块数据和位置信息的字典
+
+                # 处理当前批次的块
+                for i in range(batch_start, batch_end):
+                    chunk_file_path = os.path.join(file_temp_dir, f"chunk_{i}")
+                    if os.path.exists(chunk_file_path):
+                        # 创建异步任务读取块数据
+                        task = asyncio.create_task(process_chunk(chunk_file_path, i, chunk_data))
+                        tasks.append(task)
+
+                # 等待当前批次的块处理完成
+                if tasks:
+                    await asyncio.gather(*tasks)
+
+                # 按顺序写入当前批次的数据块
+                for i in range(batch_start, batch_end):
+                    if i in chunk_data:
+                        await outfile.write(chunk_data[i])
+                        # 立即清理内存中的数据块
+                        chunk_data[i] = None
+
+                # 强制垃圾回收
+                gc.collect()
+
         return True
     except Exception as e:
         logger.error(f"异步合并文件块时出错: {str(e)}")
@@ -308,12 +346,16 @@ async def merge_chunks_async(file_temp_dir, final_path, total_chunks):
 async def process_chunk(chunk_file_path, chunk_index, chunk_data):
     """异步处理单个分块"""
     try:
-        # 使用内存映射读取块
-        with open(chunk_file_path, 'rb') as infile:
-            with mmap.mmap(infile.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+        # 获取文件大小
+        file_size = os.path.getsize(chunk_file_path)
+
+        # 对于小文件，直接读取而不使用内存映射
+        if file_size < 1024 * 1024:  # 小于1MB的文件
+            async with aiofiles.open(chunk_file_path, 'rb') as infile:
+                chunk_content = await infile.read()
                 # 计算块的MD5校验和
-                chunk_hash = hashlib.md5(mm).hexdigest()
-                
+                chunk_hash = hashlib.md5(chunk_content).hexdigest()
+
                 # 检查是否已经上传过这个块
                 chunk_hash_file = f"{chunk_file_path}.hash"
                 if os.path.exists(chunk_hash_file):
@@ -323,13 +365,36 @@ async def process_chunk(chunk_file_path, chunk_index, chunk_data):
                             # 块已经上传过，使用空数据替代
                             chunk_data[chunk_index] = b''
                             return
-                
+
                 # 保存块的校验和
-                with open(chunk_hash_file, 'w') as hash_file:
-                    hash_file.write(chunk_hash)
-                
-                # 读取数据并存储在字典中
-                chunk_data[chunk_index] = mm.read()
+                async with aiofiles.open(chunk_hash_file, 'w') as hash_file:
+                    await hash_file.write(chunk_hash)
+
+                # 存储数据
+                chunk_data[chunk_index] = chunk_content
+        else:
+            # 对于大文件，使用内存映射
+            with open(chunk_file_path, 'rb') as infile:
+                with mmap.mmap(infile.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+                    # 计算块的MD5校验和
+                    chunk_hash = hashlib.md5(mm).hexdigest()
+
+                    # 检查是否已经上传过这个块
+                    chunk_hash_file = f"{chunk_file_path}.hash"
+                    if os.path.exists(chunk_hash_file):
+                        with open(chunk_hash_file, 'r') as hash_file:
+                            existing_hash = hash_file.read().strip()
+                            if existing_hash == chunk_hash:
+                                # 块已经上传过，使用空数据替代
+                                chunk_data[chunk_index] = b''
+                                return
+
+                    # 保存块的校验和
+                    with open(chunk_hash_file, 'w') as hash_file:
+                        hash_file.write(chunk_hash)
+
+                    # 读取数据并存储在字典中
+                    chunk_data[chunk_index] = mm.read()
     except Exception as e:
         logger.error(f"处理分块 {chunk_index} 时出错: {str(e)}")
         # 放入空数据以保持索引完整性
@@ -341,11 +406,11 @@ def upload_chunk():
     chunk_number = int(request.form.get('chunk_number', 0))
     total_chunks = int(request.form.get('total_chunks', 0))
     filename = request.form.get('filename', '')
-    
+
     # 检查参数
     if not filename or 'file' not in request.files:
         return jsonify(success=False, error='Invalid request parameters')
-    
+
     # 初始化上传状态（如果不存在）
     if filename not in upload_states:
         upload_states[filename] = {
@@ -354,33 +419,33 @@ def upload_chunk():
             'total_chunks': total_chunks,
             'timestamp': datetime.now()
         }
-    
+
     # 检查是否暂停上传
     file_state = upload_states.get(filename, {})
     if file_state.get('paused', False):
         logger.info(f"文件上传已暂停: {filename}, 当前块: {chunk_number}")
         return jsonify(success=False, error='Upload paused', paused=True)
-    
+
     chunk = request.files['file']
     file_temp_dir = None
-    
+
     try:
         # 确保文件名安全
         filename = os.path.basename(filename)
-        
+
         # 为此文件创建一个唯一目录
         file_temp_dir = os.path.join(app.config['TEMP_CHUNKS_DIR'], filename)
         os.makedirs(file_temp_dir, exist_ok=True)
-        
+
         # 保存当前块
         chunk_path = os.path.join(file_temp_dir, f"chunk_{chunk_number}")
         chunk.save(chunk_path)
-        
+
         # 如果这是最后一个块，合并所有块
         if chunk_number == total_chunks - 1:
             # 使用异步IO合并块
             final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            
+
             # 使用 asyncio.run() 替代手动管理事件循环
             try:
                 success = asyncio.run(merge_chunks_async(file_temp_dir, final_path, total_chunks))
@@ -400,37 +465,37 @@ def upload_chunk():
                         except Exception as del_error:
                             logger.error(f"无法删除部分写入的文件: {str(del_error)}")
                     raise
-            
+
             if not success:
                 # 不删除临时目录，以便用户可以重试
                 return jsonify(success=False, error='Failed to merge chunks')
-            
+
             # 清理临时文件
             try:
                 shutil.rmtree(file_temp_dir)
                 file_temp_dir = None  # 标记为已清理
             except Exception as e:
                 logger.error(f"清理临时分块目录出错: {str(e)}")
-            
+
             # 从上传状态中移除
             if filename in upload_states:
                 del upload_states[filename]
-            
+
             # 通知所有客户端文件已更新
-            socketio.emit('files_updated', {'files': get_files_info()})
-            
+            socketio.emit('files_updated', {'files': get_files_info(force_refresh=True)})
+
             return jsonify(success=True, filename=filename, status='completed')
-        
+
         # 更新上传状态
         if filename in upload_states:
             upload_states[filename]['last_chunk'] = chunk_number + 1
             upload_states[filename]['timestamp'] = datetime.now()
-        
+
         return jsonify(success=True, filename=filename, status='chunk_uploaded')
-    
+
     except Exception as e:
         logger.error(f"处理分块上传时出错: {str(e)}")
-        
+
         # 删除部分写入的文件（如果存在）
         final_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         if os.path.exists(final_path):
@@ -439,7 +504,7 @@ def upload_chunk():
                 logger.info(f"已删除部分写入的文件: {final_path}")
             except Exception as del_error:
                 logger.error(f"无法删除部分写入的文件: {str(del_error)}")
-        
+
         return jsonify(success=False, error=str(e))
 
 @app.route('/download/<filename>')
@@ -456,7 +521,7 @@ def delete_file(filename):
         if os.path.exists(file_path):
             os.remove(file_path)
             # 通知所有客户端文件已更新
-            socketio.emit('files_updated', {'files': get_files_info()})
+            socketio.emit('files_updated', {'files': get_files_info(force_refresh=True)})
             return jsonify(success=True)
         else:
             return jsonify(success=False, error='File not found')
@@ -472,9 +537,9 @@ def delete_all_files():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             if os.path.isfile(file_path):
                 os.remove(file_path)
-        
+
         # 通知所有客户端文件已更新
-        socketio.emit('files_updated', {'files': get_files_info()})
+        socketio.emit('files_updated', {'files': get_files_info(force_refresh=True)})
 
         return jsonify(success=True)
     except Exception as e:
@@ -506,18 +571,18 @@ def pause_upload(filename):
         # 从请求获取当前块索引
         data = request.get_json() or {}
         chunk_index = data.get('chunk_index', 0)
-        
+
         # 记录原始状态
         previous_state = upload_states.get(filename, {})
         previous_chunk = previous_state.get('last_chunk', -1) if previous_state else -1
-        
+
         # 更新文件的暂停状态
         upload_states[filename] = {
             'paused': True,
             'last_chunk': chunk_index,
             'timestamp': datetime.now()
         }
-        
+
         # 通知所有客户端上传状态已更新
         socketio.emit('upload_state_updated', {
             'filename': filename,
@@ -525,13 +590,13 @@ def pause_upload(filename):
             'chunk_index': chunk_index,
             'paused': True
         })
-        
+
         logger.info(f"暂停上传文件: {filename}, 当前块: {chunk_index}, 之前的块: {previous_chunk}")
         return jsonify(success=True, message=f'已暂停上传: {filename}')
     except Exception as e:
         logger.error(f"暂停上传时出错: {str(e)}")
         return jsonify(success=False, error=str(e))
-    
+
 @app.route('/resume_upload/<filename>', methods=['POST'])
 def resume_upload(filename):
     """恢复特定文件上传的API"""
@@ -540,12 +605,12 @@ def resume_upload(filename):
         file_state = upload_states.get(filename, {})
         last_chunk = file_state.get('last_chunk', 0)
         was_paused = file_state.get('paused', False)
-        
+
         # 更新状态为非暂停
         if filename in upload_states:
             upload_states[filename]['paused'] = False
             upload_states[filename]['timestamp'] = datetime.now()
-        
+
         # 通知所有客户端上传状态已更新
         socketio.emit('upload_state_updated', {
             'filename': filename,
@@ -553,7 +618,7 @@ def resume_upload(filename):
             'chunk_index': last_chunk,
             'paused': False
         })
-        
+
         logger.info(f"恢复上传文件: {filename}, 从块: {last_chunk}, 之前是否暂停: {was_paused}")
         return jsonify(success=True, message=f'已恢复上传: {filename}', last_chunk=last_chunk)
     except Exception as e:
@@ -568,9 +633,9 @@ def get_upload_state(filename):
         file_state = upload_states.get(filename, {})
         if not file_state:
             return jsonify(success=True, paused=False, last_chunk=0)
-            
+
         return jsonify(
-            success=True, 
+            success=True,
             paused=file_state.get('paused', False),
             last_chunk=file_state.get('last_chunk', 0)
         )
@@ -581,30 +646,51 @@ def get_upload_state(filename):
 # Socket.IO 事件处理
 @socketio.on('connect')
 def handle_connect():
-    socketio.emit('files_updated', {'files': get_files_info()})
+    socketio.emit('files_updated', {'files': get_files_info(force_refresh=False)})
 
 @socketio.on('upload_progress')
 def handle_upload_progress(data):
     socketio.emit('upload_progress_update', data, to=None)
 
-# 定时任务：清理临时文件
+# 定时任务：清理临时文件和缓存
 def start_scheduler():
     # 先执行一次清理，然后再设置定时任务
     clean_temp_files()
-    
+
     # 设置定时清理任务
     schedule.every(1).hours.do(clean_temp_files)
-    
+
+    # 设置定时清理缓存任务
+    def clean_caches():
+        global file_icon_cache, file_size_cache, files_info_cache, files_info_cache_time
+        logger.info("清理内存缓存...")
+        # 如果缓存过大，清理它们
+        if len(file_icon_cache) > 1000:
+            file_icon_cache = {}
+            logger.info("已清理文件图标缓存")
+        if len(file_size_cache) > 1000:
+            file_size_cache = {}
+            logger.info("已清理文件大小缓存")
+        # 强制刷新文件信息缓存
+        files_info_cache = {}
+        files_info_cache_time = 0
+        logger.info("已清理文件信息缓存")
+        # 强制垃圾回收
+        gc.collect()
+
+    # 每6小时清理一次缓存
+    schedule.every(6).hours.do(clean_caches)
+
     # 创建一个守护线程来运行调度器
     def run_scheduler():
         while not exit_event.is_set():
             schedule.run_pending()
             time.sleep(1)
-    
+
     # 启动调度器线程
     scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
     scheduler_thread.start()
-    
+
     logger.info("临时文件清理调度器已启动")
     return scheduler_thread
 
@@ -613,10 +699,10 @@ def start_scheduler():
 if __name__ == '__main__':
     # 配置日志级别
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
-    
+
     # 启动定时任务线程
     start_scheduler()
-    
+
     # 启动服务器线程
     server_thread = threading.Thread(target=lambda: socketio.run(
         app,
@@ -638,4 +724,4 @@ if __name__ == '__main__':
         # 开发环境下也使用webview窗口
         server_url = f"http://{get_local_ip()}:5000"
         window = webview.create_window('内网文件传输工具', server_url, width=900, height=700)
-        webview.start(lambda: exit_event.set()) 
+        webview.start(lambda: exit_event.set())

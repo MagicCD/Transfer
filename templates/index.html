@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="文件快传 - 快速分享文件的工具">
+    <meta name="theme-color" content="#3498db">
     <title>文件快传</title>
+    <!-- 使用本地图标文件 -->
     <link rel="icon" href="/static/app_icon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="/static/app_icon.ico" type="image/x-icon">
+    <!-- 使用国内CDN加速 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="https://cdn.staticfile.org/socket.io/4.6.1/socket.io.min.js" integrity="sha512-AI5A3zIoeRSEEX9z3Vyir8NqSMC1pY7r5h2cE+9J6FLsoEmSSGLFaqMQw8SWvoONXogkfFrkQiJfLeHLz3+HOg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="/static/style.css" as="style">
+    <link rel="preload" href="/static/script.js" as="script">
 </head>
 <body>
     <div class="container">
         <h1><i class="fas fa-share-alt"></i> 文件快传</h1>
-        
+
         <div class="server-info">
             服务器地址: <strong>http://{{ server_ip }}:{{ server_port }}</strong> (可在局域网内访问)
         </div>
-        
+
         <div id="uploadSection" class="upload-section">
             <div class="upload-icon">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -37,7 +45,7 @@
                     <ul></ul>
                 </div>
             </div>
-            
+
             <div id="progressContainer" class="progress-container">
                 <div class="progress-bar">
                     <div id="progressFill" class="progress-fill"></div>
@@ -56,7 +64,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="files-section">
             <div class="section-header">
                 <h2>已分享文件</h2>
@@ -94,9 +102,30 @@
             </ul>
         </div>
     </div>
-    
+
     <div id="toast" class="toast"></div>
-    
-    <script src="/static/script.js"></script>
+
+    <!-- 延迟加载非关键脚本 -->
+    <script src="/static/script.js" defer></script>
+
+    <!-- 添加移动设备检测 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检测是否为移动设备
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+            }
+
+            // 检测浏览器支持情况
+            const supportsWebSockets = 'WebSocket' in window || 'MozWebSocket' in window;
+            if (!supportsWebSockets) {
+                const toast = document.getElementById('toast');
+                toast.textContent = '您的浏览器可能不支持实时更新功能，请刷新页面查看最新文件列表';
+                toast.className = 'toast error show';
+                setTimeout(() => toast.classList.remove('show'), 5000);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const socket = io();
-    
+
     // DOM 元素
     const fileInput = document.getElementById('fileInput');
     const uploadBtn = document.getElementById('uploadBtn');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const toast = document.getElementById('toast');
     const pauseResumeBtn = document.getElementById('pauseResumeBtn');
     const cancelBtn = document.getElementById('cancelBtn');
-    
+
     // 保存当前活动的XHR请求，用于取消上传
     let activeXHR = null;
     let isCancelled = false;
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isUploading = false;
     let currentFileIndex = 0;  // 添加为全局变量
     let currentPauseResumeBtn = null; // 当前文件的暂停/恢复按钮
-    
+
     // 用于保存暂停状态的信息
     let pauseInfo = {
         file: null,
@@ -34,36 +34,36 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadedSize: 0,
         chunkUploadedSize: 0
     };
-    
+
     // 选择文件事件
     fileInput.addEventListener('change', function() {
         handleSelectedFiles(this.files);
     });
-    
+
     // 处理选择的文件
     function handleSelectedFiles(files) {
         if (files.length > 0) {
             selectedFilesContainer.style.display = 'block';
             selectedFilesCount.textContent = `已选择 ${files.length} 个文件`;
             selectedFilesList.innerHTML = '';
-            
+
             // 创建一个可以被修改的文件列表（FileList对象是只读的）
             const fileArray = Array.from(files);
-            
+
             updateSelectedFilesList(fileArray);
-            
+
             uploadBtn.disabled = false;
         } else {
             selectedFilesContainer.style.display = 'none';
             uploadBtn.disabled = true;
         }
     }
-    
+
     // 更新选中的文件列表UI
     function updateSelectedFilesList(fileArray) {
         selectedFilesList.innerHTML = '';
         selectedFilesCount.textContent = `已选择 ${fileArray.length} 个文件`;
-        
+
         for (let i = 0; i < fileArray.length; i++) {
             const file = fileArray[i];
             const li = document.createElement('li');
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </span>
                 `;
             }
-            
+
             li.innerHTML = `
                 <span>${file.name} (${formatFileSize(file.size)})</span>
                 <div class="file-actions">
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             selectedFilesList.appendChild(li);
         }
-        
+
         if (fileArray.length === 0) {
             selectedFilesContainer.style.display = 'none';
             uploadBtn.disabled = true;
@@ -93,30 +93,30 @@ document.addEventListener('DOMContentLoaded', function() {
             fileInput.value = '';
         }
     }
-    
+
     // 绑定移除文件事件 (移除了暂停/恢复逻辑)
     selectedFilesList.addEventListener('click', function(e) {
         // 处理移除文件
         const removeBtn = e.target.closest('.remove-file');
         if (removeBtn) {
             const index = parseInt(removeBtn.getAttribute('data-index'));
-            
+
             // 创建一个新的文件数组，排除要删除的文件
             const currentFiles = Array.from(fileInput.files);
             const updatedFiles = currentFiles.filter((_, i) => i !== index);
-            
+
             // 更新UI
             updateSelectedFilesList(updatedFiles);
-            
+
             // 由于无法直接修改fileInput.files，我们需要创建一个新的DataTransfer对象
             const dataTransfer = new DataTransfer();
             updatedFiles.forEach(file => dataTransfer.items.add(file));
-            
+
             // 使用新的DataTransfer对象更新fileInput.files
             fileInput.files = dataTransfer.files;
         }
     });
-    
+
     // 上传按钮点击事件
     uploadBtn.addEventListener('click', function() {
         if (isUploading) {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadFiles(Array.from(fileInput.files));
         }
     });
-    
+
     // 暂停/恢复按钮点击事件
     pauseResumeBtn.addEventListener('click', function() {
         const status = this.getAttribute('data-status');
@@ -146,23 +146,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         currentPauseResumeBtn = this;
     });
-    
+
     // 取消按钮点击事件
     cancelBtn.addEventListener('click', function() {
         if (confirm('确定要取消当前上传吗？')) {
             cancelUpload();
         }
     });
-    
+
     // 上传文件
     function uploadFiles(files) {
         if (files.length === 0) {
             return;
         }
-        
+
         // 如果是恢复上传，需要特殊处理
         const isResuming = isPaused && pauseInfo.file;
-        
+
         // 准备上传
         if (!isResuming) {
             // 显示进度条
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 设置上传按钮为取消状态
             uploadBtn.innerHTML = '<i class="fas fa-times"></i>&nbsp; 取消上传';
             uploadBtn.className = 'cancel-upload-btn';
-            
+
             // 重置暂停/恢复按钮状态
             pauseResumeBtn.innerHTML = '<i class="fas fa-pause"></i>&nbsp; 暂停';
             pauseResumeBtn.setAttribute('data-status', 'pause');
@@ -181,24 +181,24 @@ document.addEventListener('DOMContentLoaded', function() {
             // 是恢复上传，不重置按钮状态
             // ...保持现有逻辑
         }
-        
+
         // 重置状态
         isCancelled = false;
         isPaused = false;
         isUploading = true; // Set upload status to true
-        
+
         // Update the selected file list to remove the 'X' buttons
         updateSelectedFilesList(files);
-        
+
         // 计算文件总大小
         let totalSize = 0;
         for (let i = 0; i < files.length; i++) {
             totalSize += files[i].size;
         }
-        
+
         // 已上传大小
         let uploadedSize = isResuming ? pauseInfo.uploadedSize : 0;
-        
+
         // 设置初始进度条状态
         if (isResuming && uploadedSize > 0) {
             const resumePercentage = Math.round((uploadedSize / totalSize) * 100);
@@ -206,10 +206,10 @@ document.addEventListener('DOMContentLoaded', function() {
             progressPercent.textContent = `${resumePercentage}%`;
             progressSize.textContent = `${formatFileSize(uploadedSize)} / ${formatFileSize(totalSize)}`;
         }
-        
+
         // 循环上传每个文件
         currentFileIndex = isResuming ? pauseInfo.fileIndex : 0;
-        
+
         function uploadNextFile() {
             if (currentFileIndex >= files.length || isCancelled) {
                 // 所有文件上传完成或上传被取消
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 isUploading = false;
                 return;
             }
-            
+
             if (isPaused) {
                 console.log("上传暂停，当前文件索引:", currentFileIndex);
                 // 保存当前状态以供恢复
@@ -229,14 +229,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 pauseInfo.uploadedSize = uploadedSize;
                 return;
             }
-            
+
             const file = files[currentFileIndex];
             // 设置当前上传的文件名为进度条容器的数据属性
             progressContainer.setAttribute('data-filename', file.name);
-            
+
             // 为大文件使用分块上传
             const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 分块
-            
+
             // 如果文件小于 50MB，使用普通上传
             if (file.size < 50 * 1024 * 1024) {
                 uploadWholeFile(file);
@@ -248,33 +248,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // 常规方式上传整个文件（小文件）
         function uploadWholeFile(file) {
             console.log("小文件上传", file.name, "文件大小:", formatFileSize(file.size));
-            
+
             // 创建 FormData
             const formData = new FormData();
             formData.append('file', file);
-            
+
             // 创建 XMLHttpRequest
             const xhr = new XMLHttpRequest();
             activeXHR = xhr; // 保存当前活动的XHR请求
-            
+
             // 进度事件
             xhr.upload.addEventListener('progress', function(e) {
                 if (e.lengthComputable && !isPaused && !isCancelled) {
                     // 当前文件的上传进度
                     const currentProgress = e.loaded;
-                    
+
                     // 更新总进度
                     const overallProgress = uploadedSize + currentProgress;
                     const percentage = Math.round((overallProgress / totalSize) * 100);
-                    
+
                     // 保存当前进度以支持断点续传
                     pauseInfo.uploadedSize = uploadedSize;
-                    
+
                     // 更新进度条
                     progressFill.style.width = `${percentage}%`;
                     progressPercent.textContent = `${percentage}%`;
                     progressSize.textContent = `${formatFileSize(overallProgress)} / ${formatFileSize(totalSize)}`;
-                    
+
                     // 通过 Socket.IO 发送进度信息
                     socket.emit('upload_progress', {
                         filename: file.name,
@@ -284,16 +284,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
-            
+
             // 完成事件
             xhr.addEventListener('load', function() {
                 // 清空当前活动XHR
                 activeXHR = null;
-                
+
                 if (xhr.status === 200 && !isCancelled) {
                     // 更新已上传大小
                     uploadedSize += file.size;
-                    
+
                     // 上传下一个文件
                     currentFileIndex++;
                     uploadNextFile();
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     isUploading = false;
                 }
             });
-            
+
             // 错误事件
             xhr.addEventListener('error', function() {
                 // 清空当前活动XHR
@@ -314,13 +314,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     isUploading = false;
                 }
             });
-            
+
             // 取消事件
             xhr.addEventListener('abort', function() {
                 // 清空当前活动XHR
                 activeXHR = null;
             });
-            
+
+            // 设置超时
+            xhr.timeout = 60000; // 60秒超时
+            xhr.ontimeout = function() {
+                activeXHR = null;
+                if (!isCancelled && !isPaused) {
+                    showToast('上传超时，请检查网络连接', 'error');
+                    resetUploadUI();
+                    isUploading = false;
+                }
+            };
+
             // 发送请求
             xhr.open('POST', '/upload');
             xhr.send(formData);
@@ -330,18 +341,18 @@ document.addEventListener('DOMContentLoaded', function() {
         function uploadLargeFile(file) {
             const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB 分块
             const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-            
+
             // 从暂停位置恢复
             const isResuming = pauseInfo.file && pauseInfo.file.name === file.name;
             let chunkIndex = isResuming ? pauseInfo.chunkIndex : 0;
             let chunkUploadedSize = isResuming ? pauseInfo.chunkUploadedSize : 0;
-            
-            console.log("大文件上传", isResuming ? "恢复上传" : "开始上传", 
+
+            console.log("大文件上传", isResuming ? "恢复上传" : "开始上传",
                        "文件:", file.name,
-                       "当前块:", chunkIndex, 
+                       "当前块:", chunkIndex,
                        "总块数:", totalChunks,
                        "已上传块大小:", formatFileSize(chunkUploadedSize));
-            
+
             // 首先检查服务器端的上传状态，确保不是暂停状态
             fetch(`/upload_state/${encodeURIComponent(file.name)}`)
                 .then(response => response.json())
@@ -358,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                             return;
                         }
-                        
+
                         // 如果服务器有更新的块索引信息，使用服务器的信息
                         if (data.last_chunk > chunkIndex) {
                             console.log(`使用服务器保存的块索引: ${data.last_chunk}`);
@@ -366,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             // 更新暂停信息
                             pauseInfo.chunkIndex = chunkIndex;
                         }
-                        
+
                         // 继续上传
                         uploadNextChunk();
                     } else {
@@ -378,14 +389,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error("检查上传状态时出错:", error);
                     uploadNextChunk(); // 出错时仍然尝试上传
                 });
-            
+
             function uploadNextChunk() {
                 if (chunkIndex >= totalChunks || isCancelled) {
                     // 所有块上传完成或上传被取消
                     activeXHR = null;
                     return;
                 }
-                
+
                 if (isPaused) {
                     // 保存当前状态以供恢复
                     console.log("分块上传暂停，当前块索引:", chunkIndex, "已上传块大小:", formatFileSize(chunkUploadedSize));
@@ -395,43 +406,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     pauseInfo.fileIndex = currentFileIndex;
                     return;
                 }
-                
+
                 const start = chunkIndex * CHUNK_SIZE;
                 const end = Math.min(file.size, start + CHUNK_SIZE);
                 const chunk = file.slice(start, end);
-                
+
                 console.log(`上传第 ${chunkIndex+1}/${totalChunks} 块, 大小: ${formatFileSize(chunk.size)}`);
-                
+
                 // 创建 FormData 对象
                 const formData = new FormData();
                 formData.append('file', chunk);
                 formData.append('filename', file.name);
                 formData.append('chunk_number', chunkIndex);
                 formData.append('total_chunks', totalChunks);
-                
+
                 // 创建 XMLHttpRequest
                 const xhr = new XMLHttpRequest();
                 activeXHR = xhr; // 保存当前活动的XHR请求
-                
+
                 // 上传进度事件
                 xhr.upload.addEventListener('progress', function(e) {
                     if (e.lengthComputable && !isPaused && !isCancelled) {
                         // 当前块的上传进度
                         const currentChunkProgress = e.loaded;
-                        
+
                         // 更新整体进度
                         const fileProgress = chunkUploadedSize + currentChunkProgress;
                         const overallProgress = uploadedSize + fileProgress;
                         const percentage = Math.round((overallProgress / totalSize) * 100);
-                        
+
                         // 保存当前进度信息用于恢复
                         pauseInfo.uploadedSize = uploadedSize;
-                        
+
                         // 更新进度条
                         progressFill.style.width = `${percentage}%`;
                         progressPercent.textContent = `${percentage}%`;
                         progressSize.textContent = `${formatFileSize(overallProgress)} / ${formatFileSize(totalSize)}`;
-                        
+
                         // 通过 Socket.IO 发送进度信息
                         socket.emit('upload_progress', {
                             filename: file.name,
@@ -441,35 +452,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 });
-                
+
                 // 完成事件
                 xhr.addEventListener('load', function() {
                     if (isCancelled) {
                         activeXHR = null;
                         return;
                     }
-                    
+
                     if (xhr.status === 200) {
                         try {
                             const response = JSON.parse(xhr.responseText);
-                            
+
                             if (response.success) {
                                 // 更新已上传的块大小
                                 chunkUploadedSize += chunk.size;
-                                
+
                                 // 保存进度信息，以便恢复时使用
                                 pauseInfo.chunkIndex = chunkIndex + 1; // 下一个块的索引
                                 pauseInfo.chunkUploadedSize = chunkUploadedSize;
                                 pauseInfo.file = file;
                                 pauseInfo.fileIndex = currentFileIndex;
                                 pauseInfo.uploadedSize = uploadedSize;
-                                
+
                                 // 如果是最后一个块或全部块已上传
                                 if (response.status === 'completed') {
                                     console.log(`文件 ${file.name} 上传完成`);
                                     // 更新已上传总大小
                                     uploadedSize += file.size;
-                                    
+
                                     // 上传下一个文件
                                     currentFileIndex++;
                                     activeXHR = null;
@@ -510,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         activeXHR = null;
                     }
                 });
-                
+
                 // 错误事件
                 xhr.addEventListener('error', function() {
                     activeXHR = null;
@@ -520,35 +531,46 @@ document.addEventListener('DOMContentLoaded', function() {
                         isUploading = false;
                     }
                 });
-                
+
                 // 取消事件
                 xhr.addEventListener('abort', function() {
                     activeXHR = null;
                 });
-                
+
+                // 设置超时
+                xhr.timeout = 60000; // 60秒超时
+                xhr.ontimeout = function() {
+                    activeXHR = null;
+                    if (!isCancelled && !isPaused) {
+                        showToast('分块上传超时，请检查网络连接', 'error');
+                        resetUploadUI();
+                        isUploading = false;
+                    }
+                };
+
                 // 发送请求
                 xhr.open('POST', '/upload/chunk');
                 xhr.send(formData);
             }
         }
-        
+
         // 开始上传第一个文件
         uploadNextFile();
     }
-    
+
     // 暂停上传
     function pauseUpload() {
         if (isUploading) {
             console.log("执行暂停上传操作，当前XHR状态:", !!activeXHR);
             // 先设置状态标志再中止请求
             isPaused = true;
-            
+
             // 保存当前文件信息，确保能够从正确位置恢复
             if (fileInput.files.length > currentFileIndex) {
                 pauseInfo.file = fileInput.files[currentFileIndex];
                 pauseInfo.fileIndex = currentFileIndex;
                 // 其他状态(uploadedSize,chunkIndex等)在各自的进度回调中已更新
-                
+
                 console.log("暂停上传状态:", {
                     文件: pauseInfo.file ? pauseInfo.file.name : "无",
                     文件索引: pauseInfo.fileIndex,
@@ -557,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     已上传块大小: formatFileSize(pauseInfo.chunkUploadedSize)
                 });
             }
-            
+
             // 更新主暂停/恢复按钮的状态
             const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn'); // Select the main button
             if (mainPauseResumeBtn) { // Check if the main button exists
@@ -566,13 +588,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainPauseResumeBtn.classList.remove('pause-btn');
                 mainPauseResumeBtn.classList.add('resume-btn');
             }
-            
+
             // 中止当前上传请求
             if (activeXHR) {
                 activeXHR.abort();
                 activeXHR = null;
             }
-            
+
             // 向服务器发送暂停请求，保存暂停状态
             if (pauseInfo.file) {
                 fetch(`/pause_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
@@ -597,11 +619,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error("发送暂停请求时出错:", error);
                 });
             }
-            
+
             showToast('上传已暂停', 'success');
         }
     }
-    
+
     // 恢复上传
     function resumeUpload() {
         if (isPaused && pauseInfo.file) {
@@ -612,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 已上传大小: formatFileSize(pauseInfo.uploadedSize),
                 已上传块大小: formatFileSize(pauseInfo.chunkUploadedSize)
             });
-            
+
             // 更新主暂停/恢复按钮的状态
             const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn'); // Select the main button
             if (mainPauseResumeBtn) { // Check if the main button exists
@@ -621,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainPauseResumeBtn.classList.add('pause-btn');
                 mainPauseResumeBtn.classList.remove('resume-btn');
             }
-            
+
             // 向服务器发送恢复请求
             fetch(`/resume_upload/${encodeURIComponent(pauseInfo.file.name)}`, {
                 method: 'POST',
@@ -638,15 +660,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.last_chunk !== undefined && data.last_chunk !== null) {
                         pauseInfo.chunkIndex = data.last_chunk;
                     }
-                    
+
                     // No longer need to update individual file buttons here
-                    
+
                     // 先保持isPaused为true，让uploadFiles函数能识别这是一个恢复操作
                     isPaused = false; // Set isPaused to false *before* calling uploadFiles
                     // 继续从暂停的位置上传文件
                     const files = Array.from(fileInput.files);
                     uploadFiles(files);
-                    
+
                     showToast('继续上传', 'success');
                 } else {
                     console.error("恢复上传失败:", data.error);
@@ -659,16 +681,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-    
+
     // 取消上传
     function cancelUpload() {
         if (activeXHR || isPaused) {
             isCancelled = true;
-            
+
             if (activeXHR) {
                 activeXHR.abort(); // 取消当前活动的XHR请求
             }
-            
+
             // 通知服务器清理临时文件
             const uploadingFileName = document.querySelector('#progressContainer').getAttribute('data-filename');
             if (uploadingFileName) {
@@ -678,12 +700,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('无法通知服务器取消上传:', error);
                 });
             }
-            
+
             showToast('上传已取消', 'error');
             resetUploadUI();
             isUploading = false;
             isPaused = false;
-            
+
             // 重置暂停信息
             pauseInfo = {
                 file: null,
@@ -694,7 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     }
-    
+
     // 重置上传 UI
     function resetUploadUI() {
         fileInput.value = '';
@@ -706,7 +728,7 @@ document.addEventListener('DOMContentLoaded', function() {
         activeXHR = null;
         isCancelled = false;
         isPaused = false;
-        
+
         // 重置主暂停/恢复按钮状态
         const mainPauseResumeBtn = document.querySelector('#pauseResumeBtn');
         if (mainPauseResumeBtn) {
@@ -716,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainPauseResumeBtn.classList.remove('resume-btn');
         }
         currentPauseResumeBtn = null; // This variable might be removable now
-        
+
         // 重置暂停信息
         pauseInfo = {
             file: null,
@@ -726,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
             chunkUploadedSize: 0
         };
     }
-    
+
     // 文件删除事件委托
     fileList.addEventListener('click', function(e) {
         // 查找最近的删除按钮
@@ -738,7 +760,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     // 删除文件
     function deleteFile(filename) {
         fetch(`/delete/${filename}`, {
@@ -756,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast(`网络错误: ${error.message}`, 'error');
         });
     }
-    
+
     // 清空所有文件
     clearAllBtn.addEventListener('click', function() {
         if (confirm('确定要删除所有文件吗？此操作无法撤销。')) {
@@ -777,24 +799,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
     // 监听文件列表更新
     socket.on('files_updated', function(data) {
         updateFileList(data.files);
     });
-    
+
     // 监听上传进度更新
     socket.on('upload_progress_update', function(data) {
         console.log('收到进度更新:', data);
     });
-    
+
     // 监听上传状态更新事件
     socket.on('upload_state_updated', function(data) {
         console.log('上传状态更新:', data);
         const filename = data.filename;
         const status = data.status;
         const isPausedUpdate = data.paused; // Renamed to avoid conflict with global isPaused
-        
+
         // 如果当前正在上传的文件状态变更，也更新全局状态和进度条上的按钮
         if (isUploading && pauseInfo.file && pauseInfo.file.name === filename) {
             isPaused = isPausedUpdate; // Update the global isPaused state
@@ -814,18 +836,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     // 更新文件列表
     function updateFileList(files) {
         fileList.innerHTML = '';
-        
+
         if (files && files.length > 0) {
             clearAllBtn.disabled = false;
-            
+
             files.forEach(file => {
                 const li = document.createElement('li');
                 li.className = 'file-item';
-                
+
                 li.innerHTML = `
                     <div class="file-info">
                         <i class="fas ${file.icon} file-icon"></i>
@@ -843,48 +865,59 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     </div>
                 `;
-                
+
                 fileList.appendChild(li);
             });
         } else {
             clearAllBtn.disabled = true;
-            
+
             const li = document.createElement('li');
             li.className = 'no-files';
             li.textContent = '暂无分享文件';
             fileList.appendChild(li);
         }
     }
-    
+
     // 显示提示消息
     function showToast(message, type) {
         toast.textContent = message;
         toast.className = `toast ${type}`;
-        
+
         // 显示提示
         setTimeout(() => {
             toast.classList.add('show');
         }, 10);
-        
+
         // 3秒后隐藏
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
     }
-    
-    // 格式化文件大小
+
+    // 格式化文件大小（使用缓存优化）
+    const fileSizeCache = {};
     function formatFileSize(bytes) {
-        if (bytes < 1024) {
-            return bytes + ' B';
-        } else if (bytes < 1024 * 1024) {
-            return (bytes / 1024).toFixed(2) + ' KB';
-        } else if (bytes < 1024 * 1024 * 1024) {
-            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-        } else {
-            return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        // 检查缓存
+        if (fileSizeCache[bytes]) {
+            return fileSizeCache[bytes];
         }
+
+        let result;
+        if (bytes < 1024) {
+            result = bytes + ' B';
+        } else if (bytes < 1024 * 1024) {
+            result = (bytes / 1024).toFixed(2) + ' KB';
+        } else if (bytes < 1024 * 1024 * 1024) {
+            result = (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        } else {
+            result = (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        }
+
+        // 存入缓存
+        fileSizeCache[bytes] = result;
+        return result;
     }
-    
+
     // 拖放文件上传
     function setupDragDrop() {
         // 阻止默认拖放行为
@@ -892,40 +925,40 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadSection.addEventListener(eventName, preventDefaults, false);
             document.body.addEventListener(eventName, preventDefaults, false);
         });
-        
+
         // 高亮显示拖放区域
         ['dragenter', 'dragover'].forEach(eventName => {
             uploadSection.addEventListener(eventName, highlight, false);
         });
-        
+
         ['dragleave', 'drop'].forEach(eventName => {
             uploadSection.addEventListener(eventName, unhighlight, false);
         });
-        
+
         // 处理拖放的文件
         uploadSection.addEventListener('drop', handleDrop, false);
-        
+
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
-        
+
         function highlight() {
             uploadSection.classList.add('drag-highlight');
         }
-        
+
         function unhighlight() {
             uploadSection.classList.remove('drag-highlight');
         }
-        
+
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            
+
             handleSelectedFiles(files);
         }
     }
-    
+
     // 设置拖放功能
     setupDragDrop();
-}); 
+});
