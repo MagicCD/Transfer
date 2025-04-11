@@ -51,23 +51,24 @@ def main():
     with tqdm(total=100, desc='打包进度', ncols=80,
               bar_format=bar_format,
               colour='green' if supports_color else None,
-              smoothing=0.1,
+              smoothing=0,  # Disable smoothing for more direct feedback
               ascii=is_windows) as pbar:
         progress = 0
-        last_update = time.time()
+        # Remove last_update, stalled_count, max_stalled as auto-increment is removed
         last_line = ""
-        stalled_count = 0
-        max_stalled = 10  # 最大停滞计数
 
         try:
             # 在Windows上使用二进制模式读取标准输入，避免编码问题
             if is_windows:
                 import io
+                import os # Ensure os is imported here if not already
 
                 # 将标准输入设置为二进制模式
+                # Ensure the encoding is suitable for PyInstaller output, e.g., 'cp437' or 'utf-8' might be needed
+                # Using 'utf-8' with 'replace' errors as a general approach
                 sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='replace')
 
-            # 强制刷新进度条
+            # 强制刷新进度条 - Initial display
             pbar.refresh()
 
             for line in sys.stdin:
@@ -83,61 +84,47 @@ def main():
 
                     # 基于 PyInstaller 输出更新进度
                     increment = parse_pyinstaller_output(line)
-                    if increment > 0 and progress < 95:
-                        progress += min(increment, 95 - progress)  # 防止超过95%
-                        pbar.update(increment)
-                        pbar.refresh()  # 强制刷新进度条
-                        stalled_count = 0  # 重置停滞计数
-                        last_update = time.time()
-                    else:
-                        # 检测停滞
-                        stalled_count += 1
+                    if increment > 0:
+                        new_progress = min(progress + increment, 95) # Cap progress at 95% until completion
+                        if new_progress > progress:
+                             update_amount = new_progress - progress
+                             pbar.update(update_amount)
+                             progress = new_progress
+                             # No need to manually refresh here, tqdm handles it on update
 
-                    # 每秒至少更新一小部分，确保进度条不会卡住
-                    current_time = time.time()
-                    if current_time - last_update >= 2.0 and progress < 95:
-                        # 根据停滞时间动态调整增量
-                        time_diff = current_time - last_update
-                        auto_increment = min(0.5 * time_diff, 95 - progress)  # 每2秒最多增加0.5%
-
-                        if auto_increment > 0:
-                            pbar.update(auto_increment)
-                            pbar.refresh()  # 强制刷新进度条
-                            progress += auto_increment
-                            last_update = current_time
-
-                    # 如果连续停滞过多，显示一些信息
-                    if stalled_count >= max_stalled:
-                        # 在Windows上使用简单的进度显示
-                        if is_windows:
-                            print(f"\r打包进行中... 当前进度: {progress:.1f}%", end="")
-                        else:
-                            print(f"\n打包进行中... 当前进度: {progress:.1f}%")
-                            print(f"最后输出: {last_line[:80]}..." if len(last_line) > 80 else f"最后输出: {last_line}")
-                        stalled_count = 0
-                        sys.stdout.flush()  # 强制刷新输出
                 except UnicodeDecodeError:
                     # 处理编码错误
-                    print(f"\r警告: 编码错误，跳过此行", end="")
-                    continue
+                    # Avoid printing potentially disruptive messages during progress bar display
+                    # Maybe log this to a file or handle differently if needed
+                    pass # Silently ignore decoding errors for now
         except KeyboardInterrupt:
             print("\n用户中断打包进程")
+            pbar.close() # Close the progress bar properly
             return
         except Exception as e:
-            print(f"\n进度显示出错: {e}")
-            # 继续执行以完成进度条
+            # Close the bar and print error below it
+            pbar.close()
+            print(f"\n进度显示处理时出错: {e}")
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            # Try to let the build finish if possible, but progress reporting stops
 
-        # 确保进度条完成
-        remaining = 100 - progress
+        # 确保进度条完成到100%
+        # Use pbar.n which is the current progress value according to tqdm
+        remaining = pbar.total - pbar.n
         if remaining > 0:
             pbar.update(remaining)
-            pbar.refresh()  # 强制刷新进度条
+        pbar.close() # Close the progress bar cleanly
 
         # 根据终端类型调整输出格式
+        # Clear the line after closing the progress bar
+        clear_line = "\r" + " " * (pbar.ncols if pbar.ncols else 80) + "\r"
+        print(clear_line, end="") # Clear the progress bar line
+
         if is_windows:
-            print("\r打包完成!" + " " * 50)  # 添加空格清除之前的输出
+            print("打包完成!")
         else:
-            print("\n打包完成!")
+            print("打包完成!") # No need for newline as pbar.close() handles it
 
         sys.stdout.flush()  # 强制刷新输出
 
@@ -176,6 +163,6 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         import traceback
-        print(f"进度显示出错: {e}", file=sys.stderr)
+        print(f"\n进度显示脚本运行时出错: {e}", file=sys.stderr)
         traceback.print_exc(file=sys.stderr)
         sys.exit(1)

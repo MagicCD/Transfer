@@ -51,23 +51,23 @@ source venv/bin/activate  # Windows用 `venv\Scripts\activate`
 pip install -r requirements.txt
 
 # 启动应用
-python main.py
+python app.py
 ```
 
 ---
 
 ## 📱 使用示例  
 ![alt text](static/screenshot.png)  
-1. 运行后自动打开桌面窗口，显示本地IP地址（如 `http://192.168.1.100:5000`）
-2. **上传文件**：拖拽文件到上传区域或点击"选择文件"
+1. 运行后自动打开桌面窗口，显示本地IP地址（如 `http://192.168.1.100:5000`）  
+2. **上传文件**：拖拽文件到上传区域或点击"选择文件"  
 3. **管理文件**：  
-   - 点击文件旁的"下载"按钮下载
-   - 点击"删除"按钮移除单个文件
-   - 点击顶部"清空全部"删除所有文件
+   - 点击文件旁的"下载"按钮下载  
+   - 点击"删除"按钮移除单个文件  
+   - 点击顶部"清空全部"删除所有文件  
 4. **大文件上传**：  
-   - 自动分块上传（>50MB）
-   - 点击文件旁的"暂停/恢复"按钮控制单个文件进度
-   - 点击顶部按钮控制全部文件上传状态
+   - 自动分块上传（>50MB）  
+   - 点击文件旁的"暂停/恢复"按钮控制单个文件进度  
+   - 点击顶部按钮控制全部文件上传状态  
 
 ---
 
@@ -97,14 +97,14 @@ main.py
 1. **Fork仓库**并创建功能分支  
    ```bash
    git checkout -b feature/your-feature
-   ```
+   ```  
 2. **代码规范**  
-   - 遵循PEP8规范
-   - 单元测试覆盖率需≥80%
+   - 遵循PEP8规范  
+   - 单元测试覆盖率需≥80%  
 3. **提交PR前**  
-   - 确保通过所有CI检查
-   - 添加测试用例（修改核心逻辑时）
-   - 更新文档说明
+   - 确保通过所有CI检查  
+   - 添加测试用例（修改核心逻辑时）  
+   - 更新文档说明  
 
 ---
 
@@ -140,4 +140,4 @@ MIT License - 详情见[LICENSE](LICENSE)文件
 
 ## 📢 联系我  
 - GitHub仓库：[https://github.com/MagicCD/Transfer](https://github.com/MagicCD/Transfer)  
-- CSDN博客：[https://blog.csdn.net/qq_52357217](https://blog.csdn.net/qq_52357217)  
+- CSDN博客：[https://blog.csdn.net/qq_52357217](https://blog.csdn.net/qq_52357217)
