@@ -11,7 +11,7 @@ from flask_socketio import SocketIO
 
 from app.utils.resource import resource_path
 from app.utils.ip import get_local_ip
-from app.config import SECRET_KEY, UPLOAD_FOLDER, TEMP_CHUNKS_DIR, SERVER_PORT
+from app.core.config import SECRET_KEY, UPLOAD_FOLDER, TEMP_CHUNKS_DIR, SERVER_PORT
 from app.services.file.storage import StorageService
 from app.services.cache.cache_service import clean_caches, get_files_info
 from app.core.error_handler import register_error_handlers
@@ -60,11 +60,9 @@ def create_app():
                             server_port=SERVER_PORT,
                             files=get_files_info(force_refresh=False))
 
-    # 注册其他路由
-    from app.routes import files, upload
-    # 注册路由
-    files.register_routes(app, socketio)
-    upload.register_routes(app, socketio)
+    # 注册API路由
+    from app.api.v1 import register_routes as register_api_v1_routes
+    register_api_v1_routes(app, socketio)
 
     return app, socketio
 

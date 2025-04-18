@@ -13,7 +13,7 @@ import hashlib
 from datetime import datetime
 from typing import Dict, Any, Tuple, List, Set, Optional, Union
 
-from app.config import UPLOAD_FOLDER, TEMP_CHUNKS_DIR, UPLOAD_STATUS
+from app.core.config import UPLOAD_FOLDER, TEMP_CHUNKS_DIR, UPLOAD_STATUS
 from app.core.exceptions import FileTransferError, FileMergeError, FileNotFoundError
 from app.services.file.storage import StorageService
 from app.services.cache.cache_service import invalidate_files_cache
@@ -35,14 +35,14 @@ upload_states: Dict[str, Dict[str, Any]] = {}
 
 class TransferManager:
     """文件传输管理器，处理文件传输的核心功能"""
-    
+
     @staticmethod
     def get_upload_state(filename: str) -> Dict[str, Any]:
         """获取文件上传状态
-        
+
         Args:
             filename: 文件名
-            
+
         Returns:
             上传状态信息
         """
@@ -82,15 +82,15 @@ class TransferManager:
             'uploaded_chunks': list(file_state.get('uploaded_chunks', set())),
             'failed_chunks': list(file_state.get('failed_chunks', set()))
         }
-    
+
     @staticmethod
     def pause_upload(filename: str, chunk_index: int = 0) -> bool:
         """暂停文件上传
-        
+
         Args:
             filename: 文件名
             chunk_index: 当前块索引
-            
+
         Returns:
             是否成功暂停
         """
@@ -120,14 +120,14 @@ class TransferManager:
         except Exception as e:
             logger.error(f"暂停上传时出错: {str(e)}")
             return False
-    
+
     @staticmethod
     def resume_upload(filename: str) -> Tuple[bool, Dict[str, Any]]:
         """恢复文件上传
-        
+
         Args:
             filename: 文件名
-            
+
         Returns:
             tuple: (是否成功, 恢复信息)
         """
@@ -173,14 +173,14 @@ class TransferManager:
         except Exception as e:
             logger.error(f"恢复上传时出错: {str(e)}")
             return False, {'error': str(e)}
-    
+
     @staticmethod
     def cancel_upload(filename: str) -> Tuple[bool, Dict[str, Any]]:
         """取消文件上传
-        
+
         Args:
             filename: 文件名
-            
+
         Returns:
             tuple: (是否成功, 取消信息)
         """
@@ -220,22 +220,22 @@ class TransferManager:
         except Exception as e:
             logger.error(f"取消上传时出错: {str(e)}")
             return False, {'error': str(e)}
-    
+
     @staticmethod
     async def process_chunk_upload(filename: str, chunk_number: int, total_chunks: int, chunk_data: bytes) -> Tuple[bool, Dict[str, Any]]:
         """处理分块上传
-        
+
         Args:
             filename: 文件名
             chunk_number: 块编号
             total_chunks: 总块数
             chunk_data: 块数据
-            
+
         Returns:
             tuple: (是否成功, 上传信息)
         """
         file_temp_dir = None
-        
+
         try:
             # 初始化上传状态（如果不存在）
             if filename not in upload_states:

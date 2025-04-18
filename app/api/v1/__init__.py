@@ -6,7 +6,7 @@ API v1模块
 包含API v1版本的所有路由
 """
 
-from app.api.v1 import files, upload
+from app.api.v1 import files, upload, system
 
 def register_routes(app, socketio):
     """注册API v1版本的所有路由
@@ -17,3 +17,4 @@ def register_routes(app, socketio):
     """
     files.register_routes(app, socketio)
     upload.register_routes(app, socketio)
+    system.register_routes(app)

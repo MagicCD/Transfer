@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 import gc
 
-from app.config import FILES_CACHE_TTL, UPLOAD_FOLDER
+from app.core.config import FILES_CACHE_TTL, UPLOAD_FOLDER
 from app.services.common import get_file_icon, format_file_size, file_icon_cache, file_size_cache
 
 # 创建日志对象
@@ -32,10 +32,10 @@ def invalidate_files_cache():
 # 获取所有文件信息
 def get_files_info(force_refresh=False):
     """获取所有文件信息，支持缓存
-    
+
     Args:
         force_refresh (bool): 是否强制刷新缓存
-        
+
     Returns:
         list: 文件信息列表
     """

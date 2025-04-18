@@ -52,7 +52,7 @@ def register_routes(app, socketio):
             raise FileNotFoundError(filename)
 
         # 从上传目录发送文件
-        from app.config import UPLOAD_FOLDER
+        from app.core.config import UPLOAD_FOLDER
         return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
 
     @app.route('/delete/<filename>', methods=['DELETE'])
