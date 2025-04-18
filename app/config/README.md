@@ -2,18 +2,28 @@
 
 This directory contains the configuration management system for the application.
 
+## Documentation
+
+Detailed documentation about the configuration system is available in the following locations:
+
+- [Chinese Configuration Guide](../../docs/zh_CN/configuration.md)
+- [English Configuration Guide](../../docs/en/configuration.md)
+
 ## Structure
 
 - `__init__.py` - Main configuration loader
-- `config_validator.py` - Configuration validation
+- `models.py` - Pydantic configuration models
 - `local_settings.py` - Local development overrides (not in version control)
-- `local_settings.py.example` - Example local settings file
-- `settings/` - Environment-specific configuration files
-  - `base.py` - Base configuration shared by all environments
-  - `constants.py` - Constants used across the application
-  - `development.py` - Development environment configuration
-  - `production.py` - Production environment configuration
-  - `test.py` - Test environment configuration
+- `CONFIG.md` - Configuration documentation (deprecated, see docs/ directory instead)
+
+## Configuration Loading Order
+
+Configurations are loaded in the following order, with later configurations overriding earlier ones:
+
+1. Pydantic model default values
+2. Environment-specific configuration (development, production, or test)
+3. Environment variables
+4. Local configuration (`local_settings.py`, if exists)
 
 ## Environment Variables
 
@@ -23,14 +33,7 @@ See `.env.example` for available configuration options.
 
 ## Local Settings
 
-For local development, you can create a `local_settings.py` file based on the example file. This file is not tracked by version control and can contain environment-specific overrides.
-
-## Configuration Loading Order
-
-1. Base configuration (`settings/base.py`)
-2. Environment-specific configuration (`settings/development.py`, `settings/production.py`, or `settings/test.py`)
-3. Local settings (`local_settings.py`)
-4. Configuration validation
+For local development, you can create a `local_settings.py` file. This file is not tracked by version control and can contain environment-specific overrides.
 
 ## Environment Selection
 

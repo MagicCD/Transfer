@@ -123,6 +123,25 @@ A: 确认：
 
 ---
 
+## 📚 文档
+详细的文档可在 `docs/` 目录中找到，包括中文和英文版本。
+
+### 中文文档
+
+- [安装指南](docs/zh_CN/setup.md) - 详细的安装和部署说明
+- [配置说明](docs/zh_CN/configuration.md) - 所有配置项、验证规则和默认值
+- [API文档](docs/zh_CN/api.md) - 所有API接口的详细说明
+- [常见问题](docs/zh_CN/faq.md) - 常见问题和解决方案
+- [贡献指南](docs/zh_CN/contribution.md) - 如何参与项目开发
+
+### English Documentation
+
+- [Installation Guide](docs/en/setup.md) - Detailed installation and deployment instructions
+- [Configuration Guide](docs/en/configuration.md) - All configuration options, validation rules, and default values
+- [API Documentation](docs/en/api.md) - Detailed description of all API endpoints
+- [Frequently Asked Questions](docs/en/faq.md) - Common questions and solutions
+- [Contribution Guidelines](docs/en/contribution.md) - How to participate in project development
+
 ## 📄 许可证  
 MIT License - 详情见[LICENSE](LICENSE)文件  
 ```  

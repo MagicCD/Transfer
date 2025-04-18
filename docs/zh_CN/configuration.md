@@ -1,8 +1,6 @@
-# 配置文档
+# 配置说明
 
-> **注意：此文档已过时。请参阅 [docs/zh_CN/configuration.md](../../docs/zh_CN/configuration.md) 和 [docs/en/configuration.md](../../docs/en/configuration.md) 获取最新的配置文档。**
-
-本文档详细说明了应用程序的所有配置项、验证规则和默认值。
+本文档详细说明了内网文件传输工具的所有配置项、验证规则和默认值。
 
 ## 配置加载顺序
 
