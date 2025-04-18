@@ -90,7 +90,63 @@ The application automatically detects the running environment:
 
 You can create a `local_settings.py` file to override any configuration option. This file is not tracked by version control and is suitable for storing local development environment-specific configurations.
 
-Example:
+There are two ways to create a local configuration file:
+
+### 1. Using Pydantic Models (Recommended)
+
+This approach provides type checking and validation, which can help catch configuration errors during development.
+
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class LocalSettings(BaseModel):
+    """Local configuration model with Pydantic type checking"""
+
+    # Debug mode
+    DEBUG: Optional[bool] = Field(
+        default=True,
+        description="Whether to enable debug mode"
+    )
+
+    # Custom secret key
+    SECRET_KEY: Optional[str] = Field(
+        default=None,
+        description="Application secret key"
+    )
+
+    # Custom upload directory
+    UPLOAD_FOLDER: Optional[str] = Field(
+        default=None,
+        description="Upload file storage directory"
+    )
+
+    # Log level
+    LOG_LEVEL: Optional[str] = Field(
+        default=None,
+        description="Logging level"
+    )
+
+# Create local settings instance
+# Only set the options you want to override
+local_settings = LocalSettings(
+    DEBUG=True,
+    SECRET_KEY="your-custom-dev-key",
+    UPLOAD_FOLDER="custom/uploads/path",
+    LOG_LEVEL="DEBUG"
+)
+
+# Export configuration dictionary, only including non-None values
+config_dict = {k: v for k, v in local_settings.model_dump().items() if v is not None}
+
+# Add all variables from the config dictionary to the current module's global namespace
+for key, value in config_dict.items():
+    globals()[key] = value
+```
+
+### 2. Using Simple Variable Definitions (Backward Compatible)
+
+This approach is simpler but doesn't provide type checking.
 
 ```python
 # Debug mode
@@ -105,6 +161,8 @@ UPLOAD_FOLDER = 'custom/uploads/path'
 # Log level
 LOG_LEVEL = 'DEBUG'
 ```
+
+You can copy the `app/core/config/local_settings.py.example` file to `app/core/config/local_settings.py` and modify it according to your needs.
 
 ## Environment Variables
 

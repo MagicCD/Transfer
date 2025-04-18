@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+本地配置示例文件
+复制此文件为local_settings.py并根据需要修改
+local_settings.py不会被版本控制系统跟踪
+
+此文件使用Pydantic模型进行配置，提供类型检查和验证
+"""
+
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class LocalSettings(BaseModel):
+    """本地配置模型，使用Pydantic提供类型检查"""
+
+    # =====================================================================
+    # 应用基础配置
+    # =====================================================================
+
+    # 调试模式
+    DEBUG: Optional[bool] = Field(
+        default=True,
+        description="是否启用调试模式"
+    )
+
+    # 自定义密钥（开发环境）
+    SECRET_KEY: Optional[str] = Field(
+        default=None,
+        description="应用程序密钥，用于会话加密等安全功能"
+    )
+
+    # =====================================================================
+    # 文件上传配置
+    # =====================================================================
+
+    # 自定义上传目录
+    UPLOAD_FOLDER: Optional[str] = Field(
+        default=None,
+        description="上传文件存储目录"
+    )
+
+    # 自定义临时分块目录
+    TEMP_CHUNKS_DIR: Optional[str] = Field(
+        default=None,
+        description="临时分块文件存储目录"
+    )
+
+    # =====================================================================
+    # 缓存和临时文件配置
+    # =====================================================================
+
+    # 临时文件最长保存时间(小时)
+    TEMP_FILES_MAX_AGE: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=168,
+        description="临时文件最长保存时间（小时）"
+    )
+
+    # 文件列表缓存有效期（秒）
+    FILES_CACHE_TTL: Optional[int] = Field(
+        default=None,
+        ge=1,
+        le=3600,
+        description="文件列表缓存有效期（秒）"
+    )
+
+    # =====================================================================
+    # 日志配置
+    # =====================================================================
+
+    # 日志级别
+    LOG_LEVEL: Optional[str] = Field(
+        default=None,
+        description="日志级别"
+    )
+
+# 创建本地配置实例
+# 只需要设置你想要覆盖的配置项，其他配置项将使用默认值
+local_settings = LocalSettings(
+    # 在这里设置你的本地配置
+    DEBUG=True,
+    # SECRET_KEY="your-custom-dev-key",
+    # UPLOAD_FOLDER="custom/uploads/path",
+    # TEMP_CHUNKS_DIR="custom/temp/chunks/path",
+    TEMP_FILES_MAX_AGE=4,  # 临时文件最长保存时间(小时)
+    FILES_CACHE_TTL=10,    # 文件列表缓存有效期（秒）
+    LOG_LEVEL="DEBUG"      # 使用详细日志
+)
+
+# 导出配置字典，只包含已设置的值（非None值）
+# 这些值将覆盖默认配置
+config_dict = {k: v for k, v in local_settings.dict().items() if v is not None}
+
+# 将配置字典中的所有变量添加到当前模块的全局命名空间中
+# 这样ConfigManager可以直接从模块中导入这些变量
+for key, value in config_dict.items():
+    globals()[key] = value

@@ -18,8 +18,8 @@ os.environ['UPLOAD_FOLDER'] = 'test_uploads'
 os.environ['TEMP_CHUNKS_DIR'] = 'test_uploads/.temp_chunks'
 
 # 导入配置管理器
-from app.config.models import BaseConfig, DevelopmentConfig
-from app.config.config_manager import ConfigManager
+from app.core.config.config_models import BaseConfig, DevelopmentConfig
+from app.core.config.config_manager import ConfigManager
 
 # 创建配置管理器实例
 config = ConfigManager()

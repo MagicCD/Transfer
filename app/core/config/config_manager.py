@@ -160,25 +160,40 @@ class ConfigManager:
         Returns:
             Optional[Dict[str, Any]]: 本地配置字典，如果不存在则返回None
         """
-        try:
-            local_settings_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config', 'local_settings.py')
-            if os.path.exists(local_settings_path):
-                spec = importlib.util.spec_from_file_location("local_settings", local_settings_path)
-                local_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(local_module)
+        # 尝试从新位置加载本地配置
+        local_settings_paths = [
+            os.path.join(os.path.dirname(__file__), 'local_settings.py'),  # 新位置
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config', 'local_settings.py')  # 旧位置（向后兼容）
+        ]
 
-                # 将本地配置添加到配置字典中
-                local_config = {}
-                for key in dir(local_module):
-                    if not key.startswith('__') and not key.startswith('_'):
-                        local_config[key] = getattr(local_module, key)
+        for local_settings_path in local_settings_paths:
+            try:
+                if os.path.exists(local_settings_path):
+                    logger.debug(f"从 {local_settings_path} 加载本地配置")
+                    spec = importlib.util.spec_from_file_location("local_settings", local_settings_path)
+                    local_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(local_module)
 
-                logger.debug("本地配置加载成功")
-                return local_config
-        except Exception as e:
-            logger.warning(f"加载本地配置时出错: {str(e)}")
-            logger.debug("跳过本地配置加载")
+                    # 将本地配置添加到配置字典中
+                    local_config = {}
 
+                    # 检查是否使用新的Pydantic模型格式
+                    if hasattr(local_module, 'config_dict'):
+                        # 新格式：使用预先处理的配置字典
+                        local_config = local_module.config_dict
+                        logger.debug("使用Pydantic模型格式的本地配置加载成功")
+                    else:
+                        # 旧格式：从模块全局变量中提取配置
+                        for key in dir(local_module):
+                            if not key.startswith('__') and not key.startswith('_'):
+                                local_config[key] = getattr(local_module, key)
+                        logger.debug("使用传统格式的本地配置加载成功")
+
+                    return local_config
+            except Exception as e:
+                logger.warning(f"从 {local_settings_path} 加载本地配置时出错: {str(e)}")
+
+        logger.debug("未找到本地配置文件，跳过本地配置加载")
         return None
 
     def _setup_logging(self) -> None:

@@ -20,3 +20,9 @@ warnings.warn(
 
 # 从新位置导入所有内容
 from app.core.config import *
+
+# 为了向后兼容，导入配置模型
+from app.core.config.config_models import (
+    BaseConfig, DevelopmentConfig, ProductionConfig, TestConfig,
+    CONFIG_MODELS, get_config_model
+)

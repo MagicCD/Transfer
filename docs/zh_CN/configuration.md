@@ -90,7 +90,63 @@
 
 你可以创建一个 `local_settings.py` 文件来覆盖任何配置项。此文件不会被版本控制系统跟踪，适合存放本地开发环境的特定配置。
 
-示例：
+有两种方式可以创建本地配置文件：
+
+### 1. 使用 Pydantic 模型（推荐）
+
+这种方式提供类型检查和验证，可以在开发时发现配置错误。
+
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+
+class LocalSettings(BaseModel):
+    """本地配置模型，使用Pydantic提供类型检查"""
+
+    # 调试模式
+    DEBUG: Optional[bool] = Field(
+        default=True,
+        description="是否启用调试模式"
+    )
+
+    # 自定义密钥
+    SECRET_KEY: Optional[str] = Field(
+        default=None,
+        description="应用程序密钥"
+    )
+
+    # 自定义上传目录
+    UPLOAD_FOLDER: Optional[str] = Field(
+        default=None,
+        description="上传文件存储目录"
+    )
+
+    # 日志级别
+    LOG_LEVEL: Optional[str] = Field(
+        default=None,
+        description="日志级别"
+    )
+
+# 创建本地配置实例
+# 只需要设置你想要覆盖的配置项
+本地配置 = LocalSettings(
+    DEBUG=True,
+    SECRET_KEY="your-custom-dev-key",
+    UPLOAD_FOLDER="custom/uploads/path",
+    LOG_LEVEL="DEBUG"
+)
+
+# 导出配置字典，只包含已设置的值（非None值）
+config_dict = {k: v for k, v in 本地配置.model_dump().items() if v is not None}
+
+# 将配置字典中的所有变量添加到当前模块的全局命名空间中
+for key, value in config_dict.items():
+    globals()[key] = value
+```
+
+### 2. 使用简单变量定义（向后兼容）
+
+这种方式更简单，但不提供类型检查。
 
 ```python
 # 调试模式
@@ -105,6 +161,8 @@ UPLOAD_FOLDER = 'custom/uploads/path'
 # 日志级别
 LOG_LEVEL = 'DEBUG'
 ```
+
+你可以复制 `app/core/config/local_settings.py.example` 文件到 `app/core/config/local_settings.py` 并根据需要进行修改。
 
 ## 环境变量
 
