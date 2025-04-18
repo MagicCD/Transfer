@@ -11,9 +11,10 @@ from flask_socketio import SocketIO
 
 from app.utils.resource import resource_path
 from app.utils.ip import get_local_ip
-from app.config import SECRET_KEY, UPLOAD_FOLDER, TEMP_CHUNKS_DIR
-from app.services.file_service import clean_temp_files
-from app.services.cache_service import clean_caches, get_files_info
+from app.config import SECRET_KEY, UPLOAD_FOLDER, TEMP_CHUNKS_DIR, SERVER_PORT
+from app.services.file.storage import StorageService
+from app.services.cache.cache_service import clean_caches, get_files_info
+from app.core.error_handler import register_error_handlers
 
 # 创建日志对象
 logger = logging.getLogger(__name__)
@@ -48,18 +49,15 @@ def create_app():
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(TEMP_CHUNKS_DIR, exist_ok=True)
 
-    # 自定义错误处理
-    @app.errorhandler(413)
-    def request_entity_too_large(_):
-        # 使用下划线作为参数名表示我们不使用这个参数
-        return {'success': False, 'error': '文件太大。请使用浏览器访问此服务进行上传，或者使用分块上传功能。'}, 413
+    # 注册统一错误处理器
+    register_error_handlers(app)
 
     # 注册主页路由
     @app.route('/')
     def index():
         return render_template('index.html',
                             server_ip=get_local_ip(),
-                            server_port=5000,
+                            server_port=SERVER_PORT,
                             files=get_files_info(force_refresh=False))
 
     # 注册其他路由
@@ -78,10 +76,10 @@ def start_scheduler():
         threading.Thread: 调度器线程
     """
     # 先执行一次清理，然后再设置定时任务
-    clean_temp_files()
+    StorageService.clean_temp_files()
 
     # 设置定时清理任务
-    schedule.every(1).hours.do(clean_temp_files)
+    schedule.every(1).hours.do(StorageService.clean_temp_files)
 
     # 设置定时清理缓存任务
     # 每6小时清理一次缓存

@@ -1,42 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import logging
+"""
+常量配置模块
+定义应用程序中使用的所有常量
+"""
 
-# 设置日志配置
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# 确定应用程序基础路径 (解决PyInstaller打包后的路径问题)
-if getattr(sys, 'frozen', False):
-    # 如果是打包后的exe文件
-    APPLICATION_PATH = os.path.dirname(sys.executable)
-    RUNNING_MODE = "packaged"
-else:
-    # 如果是直接运行的py脚本
-    APPLICATION_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    RUNNING_MODE = "script"
-
-logger.info(f"Application Base Path: {APPLICATION_PATH}")
-logger.info(f"Running Mode: {RUNNING_MODE}")
-
-# 应用配置
-SECRET_KEY = 'your-secret-key'
-UPLOAD_FOLDER = os.path.join(APPLICATION_PATH, 'uploads')
-MAX_CONTENT_LENGTH = 5 * 1024 * 1024 * 1024  # 5GB
-CHUNK_SIZE = 5 * 1024 * 1024  # 5MB
-TEMP_CHUNKS_DIR = os.path.join(APPLICATION_PATH, 'uploads', '.temp_chunks')
-TEMP_FILES_MAX_AGE = 2  # 临时文件最长保存时间(小时)
-
-# 缓存配置
-FILES_CACHE_TTL = 5  # 文件列表缓存有效期（秒）
-
-# 常量定义
+# 文件大小单位常量
 KB = 1024
 MB = KB * 1024
 GB = MB * 1024
@@ -85,7 +55,3 @@ ICON_MAPPING = {
     '.exe': 'fa-file-invoice', '.msi': 'fa-file-invoice',
     '.bat': 'fa-file-invoice', '.sh': 'fa-file-invoice',
 }
-
-# 确保上传目录和临时分块目录存在
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(TEMP_CHUNKS_DIR, exist_ok=True)
